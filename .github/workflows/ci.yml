@@ -44,7 +44,7 @@ jobs:
         run: |
           echo "Waiting for Postgres service to be ready..."
           for i in $(seq 1 12); do
-            if nc -z postgres 5432; then
+            if nc -z 127.0.0.1 5432; then
               echo "Postgres is ready after $i attempts."
               exit 0
             fi
