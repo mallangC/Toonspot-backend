@@ -37,6 +37,13 @@ jobs:
       - name: ⬇️ Install dependencies
         run: npm install
 
+      - name: ⏱️ Wait for Postgres to be ready
+        uses: softprops/wait-on-action@v2
+        with:
+          resource: tcp:postgres:5432
+          delay: 5
+          timeout: 60
+
       - name: ⚙️ Build project
         run: npm run build
 
