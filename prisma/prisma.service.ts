@@ -6,13 +6,7 @@ export class PrismaService
     extends PrismaClient
     implements OnModuleInit, OnModuleDestroy {
   constructor() {
-    let databaseUrl: string;
-
-    if (process.env.NODE_ENV === 'test') {
-      databaseUrl = process.env.DB_URL_TEST!;
-    } else {
-      databaseUrl = process.env.DB_URL!;
-    }
+    let databaseUrl = process.env.DATABASE_URL! as string;
     super({
       log: [
         {
