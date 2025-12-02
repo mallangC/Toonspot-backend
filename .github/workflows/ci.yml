@@ -37,12 +37,22 @@ jobs:
       - name: ⬇️ Install dependencies
         run: npm install
 
-      - name: ⏱️ Wait for Postgres to be ready
-        uses: softprops/wait-on-action@v2
-        with:
-          resource: tcp:postgres:5432
-          delay: 5
-          timeout: 60
+      - name: ⏱️ Wait for Postgres to be ready (Shell Script Fallback)
+        run: |
+          echo "Waiting for Postgres service to be ready..."
+          # 💡 Netcat (nc) 명령어를 사용하여 포트가 열릴 때까지 반복 시도
+          # Hostname은 서비스 이름인 'postgres'를 사용합니다.
+          for i in $(seq 1 12); do
+            # nc -z 명령어로 포트 5432에 연결 시도
+            if nc -z postgres 5432; then
+              echo "Postgres is ready after $i attempts."
+              exit 0
+            fi
+            echo "Attempt $i failed. Retrying in 5 seconds..."
+            sleep 5
+          done
+          echo "Postgres failed to start within 60 seconds. Exiting."
+          exit 1
 
       - name: ⚙️ Build project
         run: npm run build
