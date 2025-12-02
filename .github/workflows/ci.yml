@@ -59,7 +59,7 @@ jobs:
 
       - name: 🧪 Run Unit and Integration tests
         env:
-          DATABASE_URL: postgresql://testuser:testpassword@postgres:5432/test_db
+          DATABASE_URL: postgresql://testuser:testpassword@127.0.0.1:5432/test_db
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
         run: | 
           npm run prisma:deploy
