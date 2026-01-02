@@ -16,11 +16,11 @@
     "prisma:generate": "npx prisma generate",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test:local": "dotenv -e .env.test -- jest",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test": "dotenv -e .env.test -- jest",
+    "test:debug": "dotenv -e .env.test -- node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:watch": "dotenv -e .env.test -- jest --watch",
+    "test:cov": "dotenv -e .env.test -- jest --coverage",
+    "test:e2e": "dotenv -e .env.test -- jest --config ./jest-e2e.json",
     "prisma:test:migrate": "dotenv -e .env.test -- npx prisma migrate dev --name test_init",
     "prisma:test:push": "npx prisma db push --env-file .env.test --accept-data-loss",
     "prisma:deploy": "npx prisma migrate deploy"
@@ -32,7 +32,9 @@
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/schedule": "^6.0.1",
     "@prisma/client": "^6.16.3",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
@@ -91,6 +93,7 @@
       "node_modules",
       "<rootDir>"
     ],
+    "setupFiles": ["<rootDir>/test/setup-env.ts"],
     "testMatch": [
       "<rootDir>/**/*.spec.ts"
     ],
