@@ -14,6 +14,12 @@ describe('UserController', () => {
   let app: INestApplication;
   let prisma: PrismaService;
 
+  const dto = {
+    email: 'test@email.com',
+    password: 'password1234',
+    nickname: '김테스트'
+  } as RegisterRequestDto;
+
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -24,12 +30,15 @@ describe('UserController', () => {
     app = module.createNestApplication();
     await app.init();
 
+
     prisma = module.get<PrismaService>(PrismaService);
     MockAuthGuard.mockUser = {email: 'test@email.com', name: '김테스트', role: 'USER'};
   });
 
   beforeEach(async () => {
     await prisma.user.deleteMany();
+    const count = await prisma.user.count();
+    console.log(`현재 유저 수: ${count}`);
   });
 
   afterAll(async () => {
@@ -38,16 +47,11 @@ describe('UserController', () => {
   });
 
   it('POST /user/signup: 유저 등록 성공', () => {
-    const dto = {
-      email: 'test@email.com',
-      password: 'password1234',
-      nickname: '김테스트'
-    } as RegisterRequestDto;
     return request(app.getHttpServer())
         .post('/user/signup')
         .send(dto)
         .expect(res => {
-          console.log(res.body);
+          console.log(`실제 응답 결과 :${JSON.stringify(res.body, null, 2)}`);
           expect(res.body.data.id).toBeDefined();
           expect(res.body.data.email).toEqual(dto.email);
           expect(res.body.data.password).toBeUndefined();
@@ -56,11 +60,6 @@ describe('UserController', () => {
   });
 
   it('POST /user/signup: 유저 등록 실패', async () => {
-    const dto = {
-      email: 'test@email.com',
-      password: 'password1234',
-      nickname: '김테스트'
-    } as RegisterRequestDto;
     await prisma.user.create({data: dto});
 
     return request(app.getHttpServer())
@@ -219,17 +218,12 @@ describe('UserController', () => {
 
 
   it('Delete /user: 유저 삭제 처리 성공', async () => {
-    const dto = {
-      email: 'test@email.com',
-      password: 'password1234',
-      nickname: '김테스트'
-    } as RegisterRequestDto;
     await prisma.user.create({data: dto});
 
     return request(app.getHttpServer())
         .delete('/user')
         .expect(res => {
-          console.log(res);
+          console.log(res.body);
           expect(res.body.data).toEqual('아이디가 삭제되었습니다.')
         })
         .expect(200);

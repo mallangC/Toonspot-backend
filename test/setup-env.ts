@@ -6,8 +6,7 @@ const envPath = path.resolve(__dirname, '../.env.test');
 
 if (fs.existsSync(envPath)) {
   dotenv.config({
-    path: envPath,
-    override: true
+    path: envPath
   });
 } else {
   console.log('⚠️ .env.test file not found. Using system environment variables.');
