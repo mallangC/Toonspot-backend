@@ -67,7 +67,7 @@ describe('UserController', () => {
         .send(dto)
         .expect(res => {
           console.log(res.body);
-          expect(res.body.message).toEqual(ExceptionCode.ALREADY_EXISTS_USER.message);
+          expect(res.body.message).toEqual(ExceptionCode.USER_ALREADY_EXISTS.message);
           expect(res.body.statusCode).toEqual(409);
         })
         .expect(409);
@@ -114,7 +114,7 @@ describe('UserController', () => {
         .send(loginRequest)
         .expect(res => {
           console.log(res.body);
-          expect(res.body.message).toEqual(ExceptionCode.WRONG_EMAIL_OR_PASSWORD.message);
+          expect(res.body.message).toEqual(ExceptionCode.CREDENTIALS_INVALID.message);
           expect(res.body.statusCode).toEqual(401);
         })
         .expect(401);
@@ -210,7 +210,7 @@ describe('UserController', () => {
         .send(updateNickname)
         .expect(res => {
           console.log(res.body);
-          expect(res.body.message).toEqual(ExceptionCode.ALREADY_EXISTS_NICKNAME.message);
+          expect(res.body.message).toEqual(ExceptionCode.NICKNAME_ALREADY_EXISTS.message);
           expect(res.body.statusCode).toEqual(409);
         })
         .expect(409);

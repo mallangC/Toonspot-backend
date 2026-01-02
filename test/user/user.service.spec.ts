@@ -68,7 +68,7 @@ describe('UserService', () => {
     } as RegisterRequestDto;
 
     (userRepository.existsByEmail as jest.Mock).mockResolvedValue(true);
-    await expect(userService.signup(dto)).rejects.toThrow(ExceptionCode.ALREADY_EXISTS_USER.message);
+    await expect(userService.signup(dto)).rejects.toThrow(ExceptionCode.USER_ALREADY_EXISTS.message);
     expect(userRepository.existsByEmail).toHaveBeenCalledWith(dto.email);
     expect(userRepository.save).not.toHaveBeenCalled();
   })
@@ -119,7 +119,7 @@ describe('UserService', () => {
     (userRepository.existsByEmail as jest.Mock).mockResolvedValue(true);
     (userRepository.existsByNickname as jest.Mock).mockResolvedValue(true);
 
-    await expect(userService.updateUserNickname(dto.email, dto.nickname)).rejects.toThrow(ExceptionCode.ALREADY_EXISTS_NICKNAME.message);
+    await expect(userService.updateUserNickname(dto.email, dto.nickname)).rejects.toThrow(ExceptionCode.NICKNAME_ALREADY_EXISTS.message);
     expect(userRepository.existsByEmail).toHaveBeenCalledWith(dto.email);
     expect(userRepository.existsByNickname).toHaveBeenCalledWith(dto.nickname);
     expect(userRepository.update).not.toHaveBeenCalled();

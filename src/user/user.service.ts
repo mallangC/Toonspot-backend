@@ -13,7 +13,7 @@ export class UserService {
     const {email, password, nickname} = dto;
     const isExistsUser = await this.userRepository.existsByEmail(email);
     if (isExistsUser) {
-      throw new CustomException(ExceptionCode.ALREADY_EXISTS_USER)
+      throw new CustomException(ExceptionCode.USER_ALREADY_EXISTS)
     }
 
     await this.existsNickname(nickname);
@@ -43,7 +43,7 @@ export class UserService {
   private async existsNickname(nickname: string) {
     const isExistsNickname = await this.userRepository.existsByNickname(nickname);
     if (isExistsNickname) {
-      throw new CustomException(ExceptionCode.ALREADY_EXISTS_NICKNAME)
+      throw new CustomException(ExceptionCode.NICKNAME_ALREADY_EXISTS)
     }
   }
 }
