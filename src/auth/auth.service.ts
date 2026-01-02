@@ -13,12 +13,12 @@ export class AuthService {
   async login(email: string, password: string) {
     const findUser = await this.userRepository.findByEmailWithPassword(email);
     if (!findUser) {
-      throw new CustomException(ExceptionCode.WRONG_EMAIL_OR_PASSWORD)
+      throw new CustomException(ExceptionCode.CREDENTIALS_INVALID)
     }
 
     const isPasswordValidated = await bcrypt.compare(password, findUser.password);
     if (!isPasswordValidated) {
-      throw new CustomException(ExceptionCode.WRONG_EMAIL_OR_PASSWORD)
+      throw new CustomException(ExceptionCode.CREDENTIALS_INVALID)
     }
     const payload = {email, sub: findUser.id};
     return {
