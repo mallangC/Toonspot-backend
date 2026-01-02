@@ -8,14 +8,14 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  password     String
-  nickname     String   @unique
-  isEmailCheck Boolean  @default(false)
-  role         UserRole @default(USER)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id              Int      @id @default(autoincrement())
+  email           String   @unique
+  password        String
+  nickname        String   @unique
+  isEmailVerified Boolean  @default(false) @map("is_email_verified")
+  role            UserRole @default(USER)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@map("user")
 }
@@ -23,4 +23,56 @@ model User {
 enum UserRole {
   ADMIN
   USER
+}
+
+model Toon {
+  id           Int          @id @default(autoincrement())
+  toonId       Int          @map("toon_id")
+  provider     ToonProvider
+  title        String
+  authors      String
+  summary      String?
+  genre        ToonGenre?
+  rating       Float?
+  status       ToonStatus
+  isAdult      Boolean      @map("is_adult")
+  isActive     Boolean      @default(true) @map("is_active")
+  imageUrl     String       @map("image_url")
+  pageUrl      String       @map("page_url")
+  totalEpisode Int?         @map("total_episode")
+  publishDays  String       @map("publish_days")
+  // favoritesCount Int          @default(0) @map("favorites_count")
+  // likesCount     Int          @default(0) @map("likes_count")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  @@unique([toonId, provider])
+  @@map("toon")
+}
+
+enum ToonProvider {
+  NAVER
+  KAKAO_W
+  KAKAO_P
+}
+
+enum ToonGenre {
+  ROMANCE
+  THRILLER
+  ACTION
+  DAILY
+  COMEDY
+  FANTASY
+  DRAMA
+  SPORTS
+  WUXIA
+  EMOTION
+  ROMANCE_FANTASY
+  BL
+}
+
+enum ToonStatus {
+  ONGOING
+  PAUSED
+  FINISHED
 }

@@ -3,7 +3,6 @@ import {PrismaService} from "../../prisma/prisma.service";
 import {USER_SAFE_SELECT} from "../../prisma/prisma.selects";
 import {RegisterRequestDto} from "./dto/register.request.dto";
 import {UserRole} from "@prisma/client";
-import {UpdateRequestDto} from "./dto/update.request.dto";
 
 @Injectable()
 export class UserRepository {

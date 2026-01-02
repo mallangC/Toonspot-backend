@@ -3,10 +3,12 @@ import {UserModule} from './user/user.module';
 import {AuthModule} from './auth/auth.module';
 import {APP_FILTER, APP_INTERCEPTOR} from "@nestjs/core";
 import {HttpExceptionFilter} from "./exception/http.exception.filter";
-import {LoggerMiddleware} from "./logger.middleware";
+import {LoggerMiddleware} from "./middlewares/logger.middleware";
 import {LoggingInterceptor} from "./success.interceptor";
 import {PrismaModule} from "../prisma/prisma.module";
 import {ConfigModule} from "@nestjs/config";
+import {ScheduleModule} from "@nestjs/schedule";
+import { ToonModule } from './toon/toon.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import {ConfigModule} from "@nestjs/config";
     ConfigModule.forRoot({isGlobal: true}),
     UserModule,
     AuthModule,
+    ScheduleModule.forRoot(),
+    ToonModule
   ],
   providers: [{
     provide: APP_INTERCEPTOR,
