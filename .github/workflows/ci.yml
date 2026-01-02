@@ -61,6 +61,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://testuser:testpassword@127.0.0.1:5432/test_db
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-        run: | 
-          npm run prisma:deploy
+        run: |
+          npx prisma generate
+          npx prisma db push --accept-data-loss
           npm run test
