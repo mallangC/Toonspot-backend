@@ -33,6 +33,7 @@ describe('UserController', () => {
   });
 
   afterAll(async () => {
+    await prisma.user.deleteMany();
     await app.close();
   });
 
