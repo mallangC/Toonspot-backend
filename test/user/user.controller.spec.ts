@@ -37,8 +37,6 @@ describe('UserController', () => {
 
   beforeEach(async () => {
     await prisma.user.deleteMany();
-    const count = await prisma.user.count();
-    console.log(`현재 유저 수: ${count}`);
   });
 
   afterAll(async () => {
