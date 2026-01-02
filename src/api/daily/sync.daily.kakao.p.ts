@@ -1,11 +1,11 @@
 import axios from "axios";
 import {ToonProvider, ToonStatus} from "@prisma/client";
-import {mapGenreToEnum} from "../../genre.to.enum";
-import {ToonDto} from "../../../toon/dto/toon.dto";
-import {SyncResult} from "../../../toon/interface/interface.syncresult";
-import {ToonUpdate} from "../../../toon/interface/interface.toon.update";
-import {findExistsToons} from "../../find.exists.toons";
-import {mergeDailyToons} from "../../merge.daily.toons";
+import {mapGenreToEnum} from "../../util/genre.to.enum";
+import {ToonDto} from "../../toon/dto/toon.dto";
+import {SyncResult} from "../../toon/interface/interface.syncresult";
+import {ToonUpdate} from "../../toon/interface/interface.toon.update";
+import {findExistsToons} from "../../util/find.exists.toons";
+import {mergeDailyToons} from "../../util/merge.daily.toons";
 
 const GRAPHQL_ENDPOINT = 'https://bff-page.kakao.com/graphql';
 

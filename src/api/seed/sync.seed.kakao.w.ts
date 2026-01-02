@@ -1,8 +1,8 @@
 import axios, {AxiosResponse} from 'axios';
 import {ToonProvider, ToonStatus} from "@prisma/client";
-import {mapGenreToEnum} from "../../genre.to.enum";
-import {ToonDto} from "../../../toon/dto/toon.dto";
-import {mergeSeedToons} from "../../merge.seed.toons";
+import {mapGenreToEnum} from "../../util/genre.to.enum";
+import {ToonDto} from "../../toon/dto/toon.dto";
+import {mergeSeedToons} from "../../util/merge.seed.toons";
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 

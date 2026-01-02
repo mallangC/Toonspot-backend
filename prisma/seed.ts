@@ -1,9 +1,9 @@
 import {PrismaClient} from "@prisma/client";
-import {getNaverWebtoons} from "../src/middlewares/sync/seed/sync.seed.naver";
-import {getKakaoWToos} from "../src/middlewares/sync/seed/sync.seed.kakao.w";
-import {getKakaoPToons} from "../src/middlewares/sync/seed/sync.seed.kakao.p";
+import {getNaverWebtoons} from "../src/api/seed/sync.seed.naver";
+import {getKakaoWToos} from "../src/api/seed/sync.seed.kakao.w";
+import {getKakaoPToons} from "../src/api/seed/sync.seed.kakao.p";
 import {ToonDto} from "../src/toon/dto/toon.dto";
-import {getNaverFinishedToons} from "../src/middlewares/sync/finish/sync.finished.naver";
+import {getNaverFinishedToons} from "../src/api/finish/sync.finished.naver";
 import {SyncResult} from "../src/toon/interface/interface.syncresult";
 
 const prisma = new PrismaClient();

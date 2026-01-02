@@ -1,14 +1,14 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {Cron} from "@nestjs/schedule";
 import {ToonRepository} from "./toon.repository";
-import {getNaverFinishedToons} from "../middlewares/sync/finish/sync.finished.naver";
-import {getKakaoWFinishedToons} from "../middlewares/sync/finish/sync.finished.kakao.w";
-import {getKakaoPFinishedToons} from "../middlewares/sync/finish/sync.finished.kakao.p";
+import {getNaverFinishedToons} from "../api/finish/sync.finished.naver";
+import {getKakaoWFinishedToons} from "../api/finish/sync.finished.kakao.w";
+import {getKakaoPFinishedToons} from "../api/finish/sync.finished.kakao.p";
 import {ToonDto} from "./dto/toon.dto";
-import {getNaverDailyToons} from "../middlewares/sync/daily/sync.daily.naver";
+import {getNaverDailyToons} from "../api/daily/sync.daily.naver";
 import {ToonUpdate} from "./interface/interface.toon.update";
-import {getKakaoWDailyToons} from "../middlewares/sync/daily/sync.daily.kakao.w";
-import {getKakaoPDailyToons} from "../middlewares/sync/daily/sync.daily.kakao.p";
+import {getKakaoWDailyToons} from "../api/daily/sync.daily.kakao.w";
+import {getKakaoPDailyToons} from "../api/daily/sync.daily.kakao.p";
 
 @Injectable()
 export class ToonScheduler {
