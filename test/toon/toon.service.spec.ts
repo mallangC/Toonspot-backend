@@ -19,6 +19,7 @@ describe('ToonService', () => {
     existsById: jest.fn(),
     findAllToons: jest.fn(),
     findByToonIdAndProvider: jest.fn(),
+    findById: jest.fn(),
     save: jest.fn(),
     saveAll: jest.fn(),
     delete: jest.fn(),
@@ -115,9 +116,9 @@ describe('ToonService', () => {
     (toonRepository.existsById as jest.Mock).mockResolvedValue(true);
     (toonRepository.findByToonIdAndProvider as jest.Mock).mockResolvedValue(foundToon);
 
-    const result: ToonResponseDto = await toonService.getToon(id);
+    const result: ToonResponseDto = await toonService.getToon(id, false);
     expect(toonRepository.existsById).toHaveBeenCalledWith(id);
-    expect(toonRepository.findByToonIdAndProvider).toHaveBeenCalledWith(id);
+    expect(toonRepository.findByToonIdAndProvider).toHaveBeenCalledWith(id, false);
     expect(result?.id).toEqual(id);
   });
 
@@ -125,7 +126,7 @@ describe('ToonService', () => {
     const id = 1;
     (toonRepository.existsById as jest.Mock).mockResolvedValue(false);
 
-    await expect(toonService.getToon(id)).rejects.toThrow(ExceptionCode.TOON_NOT_FOUND.message);
+    await expect(toonService.getToon(id, false)).rejects.toThrow(ExceptionCode.TOON_NOT_FOUND.message);
 
     expect(toonRepository.existsById).toHaveBeenCalledWith(id);
     expect(toonRepository.findByToonIdAndProvider).not.toHaveBeenCalledWith(id);
@@ -133,13 +134,11 @@ describe('ToonService', () => {
 
   it('웹툰 수정 성공', async () => {
     const id = 1;
-    (toonRepository.existsById as jest.Mock).mockResolvedValue(true);
-    (toonRepository.existsByToonIdAndProvider as jest.Mock).mockResolvedValue(null);
+    (toonRepository.findById as jest.Mock).mockResolvedValue(foundToon);
     (toonRepository.update as jest.Mock).mockResolvedValue(updatedDto);
 
     const result: ToonResponseDto = await toonService.updateToon(updatedDto);
-    expect(toonRepository.existsById).toHaveBeenCalledWith(id);
-    expect(toonRepository.existsByToonIdAndProvider).toHaveBeenCalledWith(foundToon.toonId, foundToon.provider);
+    expect(toonRepository.findById).toHaveBeenCalledWith(id);
     expect(toonRepository.update).toHaveBeenCalledWith(updatedDto);
     expect(result?.id).toEqual(id);
     expect(result?.title).toEqual(updatedDto.title);
@@ -149,22 +148,38 @@ describe('ToonService', () => {
 
   it('웹툰 수정 실패 (id에 맞는 웹툰이 존재하지 않음)', async () => {
     const id = 1;
-    (toonRepository.existsById as jest.Mock).mockResolvedValue(false);
+    (toonRepository.findById as jest.Mock).mockResolvedValue(null);
 
     await expect(toonService.updateToon(updatedDto)).rejects.toThrow(ExceptionCode.TOON_NOT_FOUND.message);
-    expect(toonRepository.existsById).toHaveBeenCalledWith(id);
-    expect(toonRepository.existsByToonIdAndProvider).not.toHaveBeenCalledWith(foundToon.toonId, foundToon.provider);
+    expect(toonRepository.findById).toHaveBeenCalledWith(id);
     expect(toonRepository.update).not.toHaveBeenCalledWith(updatedDto);
   });
 
   it('웹툰 수정 실패 (toonId + provider 조합이 이미 존재함)', async () => {
     const id = 1;
-    (toonRepository.existsById as jest.Mock).mockResolvedValue(true);
-    (toonRepository.existsByToonIdAndProvider as jest.Mock).mockResolvedValue(foundToon);
+    const updateDto = {
+      id: 1,
+      toonId: 1010,
+      provider: ToonProvider.NAVER,
+      title: '테스트 웹툰',
+      authors: '테스트 저자',
+      summary: '테스트 줄거리',
+      genre: ToonGenre.ACTION,
+      rating: 9.5,
+      status: ToonStatus.ONGOING,
+      isAdult: false,
+      imageUrl: 'https://image.com/image.jpg',
+      pageUrl: 'https://toon.com/12341234',
+      totalEpisode: 20,
+      publishDays: '월'
+    };
 
-    await expect(toonService.updateToon(updatedDto)).rejects.toThrow(ExceptionCode.TOON_ALREADY_EXISTS.message);
-    expect(toonRepository.existsById).toHaveBeenCalledWith(id);
-    expect(toonRepository.existsByToonIdAndProvider).toHaveBeenCalledWith(foundToon.toonId, foundToon.provider);
+    (toonRepository.findById as jest.Mock).mockResolvedValue(foundToon);
+    (toonRepository.existsByToonIdAndProvider as jest.Mock).mockResolvedValue(true);
+
+    await expect(toonService.updateToon(updateDto)).rejects.toThrow(ExceptionCode.TOON_ALREADY_EXISTS.message);
+    expect(toonRepository.findById).toHaveBeenCalledWith(id);
+    expect(toonRepository.existsByToonIdAndProvider).toHaveBeenCalledWith(updateDto.toonId, updateDto.provider);
     expect(toonRepository.update).not.toHaveBeenCalledWith(updatedDto);
   });
 

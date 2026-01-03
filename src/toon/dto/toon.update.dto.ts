@@ -1,5 +1,6 @@
 import {ToonGenre, ToonProvider, ToonStatus} from "@prisma/client";
-import {IsInt, IsNotEmpty, IsOptional} from "class-validator";
+import {IsInt, IsNotEmpty, IsNumber, IsOptional} from "class-validator";
+import {Transform} from "class-transformer";
 
 export class ToonUpdateDto {
   @IsNotEmpty({message: 'id를 입력해주세요.'})
@@ -18,11 +19,16 @@ export class ToonUpdateDto {
   @IsNotEmpty({message: '장르를 입력해주세요.'})
   genre: ToonGenre;
   @IsOptional()
-  @IsInt({message: '별점은 숫자로 입력해주세요.'})
+  @IsNumber({},{message: '별점은 숫자로 입력해주세요.'})
   rating?: number;
   @IsNotEmpty({message: '상태를 입력해주세요.'})
   status: ToonStatus;
   @IsNotEmpty({message: '성인 유무를 입력해주세요.'})
+  @Transform(({value}) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
   isAdult: boolean;
   @IsNotEmpty({message: '이미지 주소를 입력해주세요.'})
   imageUrl: string;

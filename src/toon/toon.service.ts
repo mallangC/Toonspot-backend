@@ -21,20 +21,32 @@ export class ToonService {
   }
 
   // 단일 조회
-  async getToon(id: number): Promise<ToonResponseDto> {
+  async getToon(id: number, isAdmin: boolean): Promise<ToonResponseDto> {
     await this.existsToonById(id);
-    return await this.toonRepository.findByToonIdAndProvider(id)
+    const findToon = await this.toonRepository.findByToonIdAndProvider(id, isAdmin)
+    if (!findToon) {
+      throw new CustomException(ExceptionCode.TOON_NOT_FOUND);
+    }
+    return {
+      ...findToon,
+      rating: findToon.rating ? Number(findToon.rating) : 0
+    };
   }
 
   // 페이징 조회
-  async getToonsPaged(dto: ToonGetPagingDto) {
-    return this.toonRepository.findAllToons(dto.page, dto.provider, dto.isAdult, dto.sortBy, dto.order);
+  async getToonsPaged(dto: ToonGetPagingDto, isAdmin: boolean) {
+    return this.toonRepository.findAllToons(dto, isAdmin);
   }
 
   // 수정
   async updateToon(dto: ToonUpdateDto): Promise<ToonResponseDto> {
-    await this.existsToonById(dto.id);
-    await this.existsToonByToonIdAndProvider(dto.toonId, dto.provider);
+    const findToon = await this.toonRepository.findById(dto.id);
+    if (!findToon) {
+      throw new CustomException(ExceptionCode.TOON_NOT_FOUND);
+    }
+    if (dto.toonId !== findToon.toonId || dto.provider !== findToon.provider) {
+      await this.existsToonByToonIdAndProvider(dto.toonId, dto.provider);
+    }
     return this.toonRepository.update(dto);
   }
 

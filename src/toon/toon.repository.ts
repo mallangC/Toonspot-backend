@@ -8,6 +8,7 @@ import {TOON_SELECT} from "../../prisma/prisma.selects";
 import {ToonActiveDto} from "./dto/toon.active.dto";
 import {ToonUpdate} from "./interface/interface.toon.update";
 import {ToonResponseDto} from "./dto/toon.response";
+import {ToonGetPagingDto} from "./dto/toon.get.paging.dto";
 
 @Injectable()
 export class ToonRepository {
@@ -44,18 +45,24 @@ export class ToonRepository {
     return !!exists;
   }
 
-  async findAllToons(page: number, provider: ToonProvider | undefined, isAdult: boolean | undefined, sortBy: string, order: string) {
+  async findById(id: number): Promise<ToonResponseDto | null> {
+    return this.prisma.toon.findUnique({
+      where: {id},
+      select: TOON_SELECT
+    });
+  }
+
+  async findAllToons(dto: ToonGetPagingDto, isAdmin: boolean) {
     const pageSize = 20;
+    const { page, provider, isAdult, order, sortBy } = dto;
     const whereClause = {
       provider: provider,
-      isAdult: isAdult
+      isAdult: isAdult,
+      isActive: isAdmin ? undefined : true
     };
     const [totalCount, items] = await this.prisma.$transaction([
       this.prisma.toon.count({
-        where: whereClause,
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-        orderBy: {[sortBy]: order},
+        where: whereClause
       }),
       this.prisma.toon.findMany({
         where: whereClause,
@@ -76,16 +83,14 @@ export class ToonRepository {
     };
   }
 
-  async findByToonIdAndProvider(id: number): Promise<ToonResponseDto> {
-    const findToon = await this.prisma.toon.findUniqueOrThrow({
-      where: {id},
+  async findByToonIdAndProvider(id: number, isAdmin: boolean): Promise<ToonResponseDto | null> {
+    return this.prisma.toon.findUnique({
+      where: {
+        id,
+        ...(isAdmin ? {} : { isActive: true })
+      },
       select: TOON_SELECT
     });
-
-    return {
-      ...findToon,
-      rating: findToon.rating ? Number(findToon.rating) : 0
-    }
   }
 
   // 업데이트

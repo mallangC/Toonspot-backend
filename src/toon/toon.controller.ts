@@ -23,12 +23,25 @@ export class ToonController {
 
   @Get()
   getAllToons(@Query() body: ToonGetPagingDto) {
-    return this.toonService.getToonsPaged(body);
+    return this.toonService.getToonsPaged(body, false);
+  }
+
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.ADMIN)
+  @Get('admin')
+  getAllToonsForAdmin(@Query() body: ToonGetPagingDto) {
+    return this.toonService.getToonsPaged(body, true);
   }
 
   @Get(":id")
   getToon(@Param('id', ParseIntPipe) id: number) {
-    return this.toonService.getToon(id);
+    return this.toonService.getToon(id, false);
+  }
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.ADMIN)
+  @Get("admin/:id")
+  getToonForAdmin(@Param('id', ParseIntPipe) id: number) {
+    return this.toonService.getToon(id, true);
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)

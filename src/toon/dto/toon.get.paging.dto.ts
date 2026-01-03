@@ -1,6 +1,6 @@
 import {ToonProvider} from "@prisma/client";
-import {IsInt, IsNotEmpty, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import {IsIn, IsInt, IsOptional} from "class-validator";
+import {Transform, Type} from "class-transformer";
 
 export class ToonGetPagingDto {
   @Type(() => Number)
@@ -9,9 +9,15 @@ export class ToonGetPagingDto {
   @IsOptional()
   provider?: ToonProvider;
   @IsOptional()
+  @Transform(({value}) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
   isAdult?: boolean;
   @IsOptional()
-  order: string = 'title';
+  sortBy: string = 'title';
   @IsOptional()
-  sortBy: 'asc' | 'desc' = 'asc';
+  @IsIn(['asc', 'desc'])
+  order: 'asc' | 'desc' = 'asc';
 }
