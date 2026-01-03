@@ -115,9 +115,9 @@ describe('ToonService', () => {
     (toonRepository.existsById as jest.Mock).mockResolvedValue(true);
     (toonRepository.findByToonIdAndProvider as jest.Mock).mockResolvedValue(foundToon);
 
-    const result: ToonResponseDto = await toonService.getToon(id);
+    const result: ToonResponseDto = await toonService.getToon(id, false);
     expect(toonRepository.existsById).toHaveBeenCalledWith(id);
-    expect(toonRepository.findByToonIdAndProvider).toHaveBeenCalledWith(id);
+    expect(toonRepository.findByToonIdAndProvider).toHaveBeenCalledWith(id, false);
     expect(result?.id).toEqual(id);
   });
 
@@ -125,7 +125,7 @@ describe('ToonService', () => {
     const id = 1;
     (toonRepository.existsById as jest.Mock).mockResolvedValue(false);
 
-    await expect(toonService.getToon(id)).rejects.toThrow(ExceptionCode.TOON_NOT_FOUND.message);
+    await expect(toonService.getToon(id, false)).rejects.toThrow(ExceptionCode.TOON_NOT_FOUND.message);
 
     expect(toonRepository.existsById).toHaveBeenCalledWith(id);
     expect(toonRepository.findByToonIdAndProvider).not.toHaveBeenCalledWith(id);

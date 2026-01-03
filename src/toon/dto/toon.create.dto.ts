@@ -1,5 +1,5 @@
 import {ToonGenre, ToonProvider, ToonStatus} from "@prisma/client";
-import {IsBoolean, IsEnum, IsInt, IsNotEmpty, IsString, IsUrl} from "class-validator";
+import {IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumber, IsString, IsUrl} from "class-validator";
 import {Optional} from "@nestjs/common";
 
 export class ToonCreateDto {
@@ -22,7 +22,7 @@ export class ToonCreateDto {
   @IsEnum(ToonGenre)
   genre: ToonGenre;
   @Optional()
-  @IsInt({message: '별점은 숫자로 입력해주세요.'})
+  @IsNumber({},{message: '별점은 숫자로 입력해주세요.'})
   rating?: number;
   @IsNotEmpty({message: '상태를 입력해주세요.'})
   @IsEnum(ToonStatus)
