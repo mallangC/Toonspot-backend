@@ -1,7 +1,7 @@
 import axios, {AxiosResponse} from "axios";
 import {ToonProvider, ToonStatus} from "@prisma/client";
-import {mapGenreToEnum} from "../../genre.to.enum";
-import {ToonDto} from "../../../toon/dto/toon.dto";
+import {mapGenreToEnum} from "../../util/genre.to.enum";
+import {ToonDto} from "../../toon/dto/toon.dto";
 
 const COMMON_HEADERS = {
   'Accept-Language': 'ko',

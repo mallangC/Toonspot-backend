@@ -1,8 +1,10 @@
 import axios from "axios";
 import {ToonProvider, ToonStatus} from "@prisma/client";
-import {mapGenreToEnum} from "../../genre.to.enum";
-import {ToonDto} from "../../../toon/dto/toon.dto";
-import {mergeSeedToons} from "../../merge.seed.toons";
+import {mapGenreToEnum} from "../../util/genre.to.enum";
+import {ToonDto} from "../../toon/dto/toon.dto";
+import {SyncResult} from "../../toon/interface/interface.syncresult";
+import {ToonUpdate} from "../../toon/interface/interface.toon.update";
+import {findExistsToons} from "../../util/find.exists.toons";
 
 const GRAPHQL_ENDPOINT = 'https://bff-page.kakao.com/graphql';
 
@@ -182,7 +184,7 @@ fragment EventLogFragment on EventLog {
   return allItems;
 }
 
-async function fetchWebtoonData(dayNum: string): Promise<any> {
+async function fetchWebtoonData(dayNum: string): Promise<SyncResult> {
   const inputVariables = {
     queryInput: {
       categoryUid: 10,
@@ -868,7 +870,10 @@ async function fetchWebtoonData(dayNum: string): Promise<any> {
     variables: inputVariables
   };
 
-  const collectedData: ToonDto[] = [];
+  const existingToons = await findExistsToons(ToonProvider.KAKAO_P);
+
+  const createData: ToonDto[] = [];
+  const updateData: ToonUpdate[] = [];
   try {
     const response = await axios.post(GRAPHQL_ENDPOINT, payload, {
       headers: COMMON_HEADERS
@@ -884,30 +889,48 @@ async function fetchWebtoonData(dayNum: string): Promise<any> {
       }
       const toonId = Number(item.eventLog.eventMeta.series_id);
       const isAdult = item.ageGrade === 'Nineteen';
+      const title = item.title;
 
       console.log(`✅ ${item.title} 정보 수집 시작`)
       const totalEpisode = await fetchWebtoonDataDetail(toonId);
       const summary = await fetchWebtoonDataSummary(toonId);
 
-      const webtoon = {
-        toonId,
-        provider: ToonProvider.KAKAO_P,
-        title: item.title,
-        authors: summary ? summary.author : null,
-        status: dayNum === '12' ? ToonStatus.FINISHED : ToonStatus.ONGOING,
-        isAdult,
-        publishDays: dayNum,
-        imageUrl: `https:${item.thumbnail}`,
-        pageUrl: `https://page.kakao.com/content/${toonId}`,
-        summary: summary ? summary.summary : null,
-        genre: mapGenreToEnum(item.eventLog.eventMeta.subcategory),
-        totalEpisode,
-        isActive: true
-      } as ToonDto
-      collectedData.push(webtoon);
+      const findToon = existingToons.find(toon => toon.toonId === toonId);
+      if (findToon) {
+        if (findToon.status !== ToonStatus.FINISHED || findToon.totalEpisode !== totalEpisode) {
+          const webtoon = {
+            toonId,
+            title,
+            status: ToonStatus.FINISHED,
+            publishDays: '완결',
+            totalEpisode,
+            provider: ToonProvider.KAKAO_P,
+          } as ToonUpdate;
+          updateData.push(webtoon);
+        }
+      } else {
+        const webtoon = {
+          toonId,
+          provider: ToonProvider.KAKAO_P,
+          title,
+          authors: summary ? summary.author : null,
+          status: dayNum === '12' ? ToonStatus.FINISHED : ToonStatus.ONGOING,
+          isAdult,
+          publishDays: dayNum,
+          imageUrl: `https:${item.thumbnail}`,
+          pageUrl: `https://page.kakao.com/content/${toonId}`,
+          summary: summary ? summary.summary : null,
+          genre: mapGenreToEnum(item.eventLog.eventMeta.subcategory),
+          totalEpisode,
+        } as ToonDto
+        createData.push(webtoon);
+      }
     }
 
-    return collectedData;
+    return {
+      createData,
+      updateData
+    };
 
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -915,7 +938,10 @@ async function fetchWebtoonData(dayNum: string): Promise<any> {
     } else {
       console.error(`❌ 요청 중 예기치 않은 오류 발생: ${error.message}`);
     }
-    return null;
+    return {
+      createData: [],
+      updateData: []
+    };
   }
 }
 
@@ -1240,15 +1266,12 @@ async function fetchWebtoonDataSummary(id: number): Promise<any> {
   }
 }
 
-export async function getKakaoPToons(): Promise<ToonDto[]> {
-  const days: string[] = ['1', '2', '3', '4', '5', '6', '7', '12'];
-  // const days: string[] = ['1', '2', '3'];
-
-  console.log("카카오 페이지 데이터 수집 시작");
+export async function getKakaoPFinishedToons(): Promise<SyncResult> {
+  console.log("[완결] 카카오 페이지 데이터 수집 시작");
   const startTime = Date.now();
-  const result: ToonDto[] = await mergeSeedToons(days, fetchWebtoonData)
+  const result = await fetchWebtoonData('12');
   const endTime = Date.now();
   const duration = ((endTime - startTime) / 1000).toFixed(1);
-  console.log(`카카오 페이지 수집 완료 - 갯수 ${result.length}개, 소요 시간: ${duration}초`);
+  console.log(`[완결] 카카오 페이지 수집 완료 - 갯수 ${result.createData.length + result.updateData.length}개, 소요 시간: ${duration}초`);
   return result;
 }
