@@ -1,6 +1,5 @@
 import {ToonGenre, ToonProvider, ToonStatus} from "@prisma/client";
-import {IsInt, IsNotEmpty, IsNumber, IsOptional} from "class-validator";
-import {Transform} from "class-transformer";
+import {IsBoolean, IsInt, IsNotEmpty, IsNumber, IsOptional} from "class-validator";
 
 export class ToonUpdateDto {
   @IsNotEmpty({message: 'id를 입력해주세요.'})
@@ -24,11 +23,7 @@ export class ToonUpdateDto {
   @IsNotEmpty({message: '상태를 입력해주세요.'})
   status: ToonStatus;
   @IsNotEmpty({message: '성인 유무를 입력해주세요.'})
-  @Transform(({value}) => {
-    if (value === 'true') return true;
-    if (value === 'false') return false;
-    return value;
-  })
+  @IsBoolean({message: '성인 유무는 boolean 형식으로 입력해주세요.'})
   isAdult: boolean;
   @IsNotEmpty({message: '이미지 주소를 입력해주세요.'})
   imageUrl: string;
