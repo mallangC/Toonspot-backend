@@ -8,7 +8,8 @@ import {LoggingInterceptor} from "./interceptors/success.interceptor";
 import {PrismaModule} from "../prisma/prisma.module";
 import {ConfigModule} from "@nestjs/config";
 import {ScheduleModule} from "@nestjs/schedule";
-import { ToonModule } from './toon/toon.module';
+import {ToonModule} from './toon/toon.module';
+import {PostModule} from "./post/post.module";
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { ToonModule } from './toon/toon.module';
     UserModule,
     AuthModule,
     ScheduleModule.forRoot(),
-    ToonModule
+    ToonModule,
+    PostModule
   ],
   providers: [{
     provide: APP_INTERCEPTOR,
