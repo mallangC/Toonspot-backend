@@ -1,6 +1,5 @@
 import {ToonGenre, ToonProvider, ToonStatus} from "@prisma/client";
-import {IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumber, IsString, IsUrl} from "class-validator";
-import {Optional} from "@nestjs/common";
+import {IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl} from "class-validator";
 
 export class ToonCreateDto {
   @IsNotEmpty({message: '웹툰 id를 입력해주세요.'})
@@ -21,7 +20,7 @@ export class ToonCreateDto {
   @IsNotEmpty({message: '장르를 입력해주세요.'})
   @IsEnum(ToonGenre)
   genre: ToonGenre;
-  @Optional()
+  @IsOptional()
   @IsNumber({},{message: '별점은 숫자로 입력해주세요.'})
   rating?: number;
   @IsNotEmpty({message: '상태를 입력해주세요.'})
@@ -45,7 +44,7 @@ export class ToonCreateDto {
     require_valid_protocol: true,
   }, {message: 'URL 형식이 아닙니다.'})
   pageUrl: string;
-  @Optional()
+  @IsOptional()
   @IsInt({message: '최신화는 숫자로 입력해주세요.'})
   totalEpisode?: number;
   @IsNotEmpty({message: '연재 요일을 입력해주세요.'})

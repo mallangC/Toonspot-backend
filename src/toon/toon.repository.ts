@@ -16,11 +16,11 @@ export class ToonRepository {
   }
 
   // 저장
-  async save(toon: ToonCreateDto): Promise<ToonResponseDto> {
+  save(toon: ToonCreateDto): Promise<ToonResponseDto> {
     return this.prisma.client.toon.create({data: toon, select: TOON_SELECT});
   }
 
-  async saveAll(toons: ToonDto[]) {
+  saveAll(toons: ToonDto[]) {
     return this.prisma.client.toon.createMany({data: toons});
   }
 
@@ -45,7 +45,7 @@ export class ToonRepository {
     return !!exists;
   }
 
-  async findById(id: number): Promise<ToonResponseDto | null> {
+  findById(id: number): Promise<ToonResponseDto | null> {
     return this.prisma.toon.findUnique({
       where: {id},
       select: TOON_SELECT
@@ -56,9 +56,9 @@ export class ToonRepository {
     const pageSize = 20;
     const { page, provider, isAdult, order, sortBy } = dto;
     const whereClause = {
-      provider: provider,
-      isAdult: isAdult,
-      isActive: isAdmin ? undefined : true
+      ...(provider?{provider: provider}: {}),
+      ...(isAdult?{isAdult: isAdult}: {}),
+      ...(isAdmin ? {} : {isActive: true})
     };
     const [totalCount, items] = await this.prisma.$transaction([
       this.prisma.toon.count({
@@ -83,8 +83,8 @@ export class ToonRepository {
     };
   }
 
-  async findByToonIdAndProvider(id: number, isAdmin: boolean): Promise<ToonResponseDto | null> {
-    return this.prisma.toon.findUnique({
+  findByToonIdAndProvider(id: number, isAdmin: boolean): Promise<ToonResponseDto | null> {
+    return this.prisma.toon.findFirst({
       where: {
         id,
         ...(isAdmin ? {} : { isActive: true })
@@ -115,7 +115,7 @@ export class ToonRepository {
     return results.length;
   }
 
-  async update(dto: ToonUpdateDto): Promise<ToonResponseDto> {
+  update(dto: ToonUpdateDto): Promise<ToonResponseDto> {
     const {id, ...updateData} = dto;
     return this.prisma.client.toon.update({
       where: {id},
@@ -124,7 +124,7 @@ export class ToonRepository {
     });
   }
 
-  async updateActiveToon(dto: ToonActiveDto): Promise<ToonResponseDto> {
+  updateActiveToon(dto: ToonActiveDto): Promise<ToonResponseDto> {
     const {id, isActive} = dto;
     return this.prisma.client.toon.update({
       where: {id},
@@ -135,6 +135,6 @@ export class ToonRepository {
 
   // 삭제
   async delete(id: number) {
-    this.prisma.client.toon.update({where: {id}, data: {isActive: false}});
+    await this.prisma.client.toon.delete({where: {id}});
   }
 }

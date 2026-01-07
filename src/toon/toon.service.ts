@@ -35,7 +35,7 @@ export class ToonService {
 
   // 페이징 조회
   async getToonsPaged(dto: ToonGetPagingDto, isAdmin: boolean) {
-    return this.toonRepository.findAllToons(dto, isAdmin);
+    return await this.toonRepository.findAllToons(dto, isAdmin);
   }
 
   // 수정
@@ -53,13 +53,13 @@ export class ToonService {
   // 활성화/비활성화 수정
   async changeActiveToon(dto: ToonActiveDto): Promise<ToonResponseDto> {
     await this.existsToonById(dto.id);
-    return this.toonRepository.updateActiveToon(dto);
+    return await this.toonRepository.updateActiveToon(dto);
   }
 
   // 삭제
   async deleteToon(id: number) {
     await this.existsToonById(id);
-    await this.toonRepository.delete(id);
+    this.toonRepository.delete(id);
   }
 
   private async existsToonById(id: number) {

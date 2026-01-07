@@ -1,10 +1,11 @@
 import {ToonProvider} from "@prisma/client";
-import {IsIn, IsInt, IsOptional} from "class-validator";
+import {IsIn, IsInt, IsOptional, Min} from "class-validator";
 import {Transform, Type} from "class-transformer";
 
 export class ToonGetPagingDto {
   @Type(() => Number)
   @IsInt({message: '페이지 번호는 숫자여야 합니다.'})
+  @Min(1)
   page: number;
   @IsOptional()
   provider?: ToonProvider;

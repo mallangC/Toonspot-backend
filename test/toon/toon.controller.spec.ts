@@ -146,8 +146,7 @@ describe('ToonController', () => {
         .send(createDto)
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
-          expect(res.body.error).toEqual('Forbidden');
-          expect(res.body.message).toEqual('접근 권한이 없습니다.');
+          expect(res.body.message).toEqual(ExceptionCode.UNAUTHORIZED.message);
         })
   });
 

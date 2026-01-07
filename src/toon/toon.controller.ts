@@ -37,6 +37,7 @@ export class ToonController {
   getToon(@Param('id', ParseIntPipe) id: number) {
     return this.toonService.getToon(id, false);
   }
+
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.ADMIN)
   @Get("admin/:id")
