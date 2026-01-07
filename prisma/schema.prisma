@@ -8,14 +8,16 @@ datasource db {
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
-  email           String   @unique
+  id              Int        @id @default(autoincrement())
+  email           String     @unique
   password        String
-  nickname        String   @unique
-  isEmailVerified Boolean  @default(false) @map("is_email_verified")
-  role            UserRole @default(USER)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  nickname        String     @unique
+  isEmailVerified Boolean    @default(false) @map("is_email_verified")
+  role            UserRole   @default(USER)
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+  Posts           Post[]
+  PostLikes       PostLike[]
 
   @@map("user")
 }
@@ -75,4 +77,41 @@ enum ToonStatus {
   ONGOING
   PAUSED
   FINISHED
+}
+
+model Post {
+  id        Int        @id @default(autoincrement())
+  title     String
+  content   String     @db.Text
+  status    PostStatus @default(PUBLISHED)
+  viewCount Int        @default(0) @map("view_count")
+  userId    Int        @map("user_id")
+  likeCount Int        @default(0) @map("like_count")
+  likes     PostLike[]
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("post")
+}
+
+enum PostStatus {
+  PUBLISHED
+  HIDDEN
+  DELETED
+}
+
+model PostLike {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  postId    Int      @map("post_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@map("like")
 }

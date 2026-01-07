@@ -31,3 +31,15 @@ export const TOON_SELECT: ToonSelect = {
   createdAt: true,
   updatedAt: true,
 }
+
+export const POST_SELECT = {
+  id: true,
+  userId: true,
+  title: true,
+  content: true,
+  status: true,
+  viewCount: true,
+  likeCount: true,
+  createdAt: true,
+  updatedAt: true,
+}
