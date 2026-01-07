@@ -1,34 +1,42 @@
-import {Injectable, OnModuleInit, OnModuleDestroy} from '@nestjs/common';
-import {PrismaClient} from "@prisma/client";
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { PrismaClient } from "@prisma/client";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   public readonly client: any;
 
   constructor() {
-    let databaseUrl = process.env.DATABASE_URL! as string;
+    const databaseUrl = process.env.DATABASE_URL!;
     super({
-      log: [{emit: 'event', level: 'query'}, 'warn', 'error'],
-      datasources: {db: {url: databaseUrl}},
+      log: [{ emit: 'event', level: 'query' }, 'warn', 'error'],
+      datasources: { db: { url: databaseUrl } },
     });
+
+    const modelsWithTimestamps = ['Post', 'User', 'Comment'];
 
     this.client = this.$extends({
       query: {
         $allModels: {
-          async $allOperations({operation, args, query}) {
-            const kstNow = new Date(new Date().getTime() + 9 * 60 * 60 * 1000);
-
-            if (['create', 'update', 'upsert', 'createMany', 'updateMany'].includes(operation)) {
+          async $allOperations({ model, operation, args, query }) {
+            if (model && modelsWithTimestamps.includes(model) && args) {
+              const kstNow = new Date(new Date().getTime() + 9 * 60 * 60 * 1000);
               if (operation === 'create') {
-                args.data.createdAt = kstNow;
-                args.data.updatedAt = kstNow;
-              } else if (operation === 'update') {
-                args.data.updatedAt = kstNow;
-              } else if (operation === 'upsert') {
-                args.create.createdAt = kstNow;
-                args.create.updatedAt = kstNow;
-                args.update.updatedAt = kstNow;
-              } else if (operation === 'createMany') {
+                args.data = args.data ?? {};
+                (args.data as any).createdAt = kstNow;
+                (args.data as any).updatedAt = kstNow;
+              }
+              else if (operation === 'update') {
+                args.data = args.data ?? {};
+                (args.data as any).updatedAt = kstNow;
+              }
+              else if (operation === 'upsert') {
+                args.create = args.create ?? {};
+                args.update = args.update ?? {};
+                (args.create as any).createdAt = kstNow;
+                (args.create as any).updatedAt = kstNow;
+                (args.update as any).updatedAt = kstNow;
+              }
+              else if (operation === 'createMany') {
                 if (Array.isArray(args.data)) {
                   args.data = args.data.map((item: any) => ({
                     ...item,
@@ -36,8 +44,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                     updatedAt: item.updatedAt ?? kstNow,
                   }));
                 }
-              } else if (operation === 'updateMany') {
-                args.data.updatedAt = kstNow;
+              }
+              else if (operation === 'updateMany') {
+                args.data = args.data ?? {};
+                (args.data as any).updatedAt = kstNow;
               }
             }
             return query(args);
