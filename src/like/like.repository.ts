@@ -1,6 +1,5 @@
 import {PrismaService} from "../../prisma/prisma.service";
 import {Injectable} from "@nestjs/common";
-import {POST_LIKE_SELECT} from "../../prisma/prisma.selects";
 
 @Injectable()
 export class LikeRepository {
