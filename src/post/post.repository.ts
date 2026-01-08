@@ -83,6 +83,14 @@ export class PostRepository {
     });
   }
 
+  updateLikeCount(id: number, num: number): Promise<PostResponse> {
+    return this.prisma.client.post.update({
+      where: {id},
+      data: {likeCount:{increment: num}},
+      select: POST_SELECT
+    })
+  }
+
   async delete(id: number) {
     await this.prisma.client.post.update({
       where: {id},

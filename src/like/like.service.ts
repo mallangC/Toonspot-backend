@@ -15,9 +15,11 @@ export class LikeService {
     const existsPostLike = await this.likeRepository.existsPostLike(userId, postId);
     if (existsPostLike) {
       await this.likeRepository.deletePostLike(userId, postId)
+      await this.postRepository.updateLikeCount(postId, -1)
       return {liked: false}
     } else {
       await this.likeRepository.savePostLike(userId, postId)
+      await this.postRepository.updateLikeCount(postId, 1)
       return {liked: true}
     }
   }
