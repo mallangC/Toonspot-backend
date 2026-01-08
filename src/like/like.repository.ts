@@ -12,8 +12,8 @@ export class LikeRepository {
     return !!existsPostLike;
   }
 
-  savePostLike(userId: number, postId: number) {
-    return this.prisma.client.postLike.create({data: {userId, postId}, select: POST_LIKE_SELECT});
+  async savePostLike(userId: number, postId: number) {
+    await this.prisma.client.postLike.create({data: {userId, postId}});
   }
 
   async deletePostLike(userId: number, postId: number) {

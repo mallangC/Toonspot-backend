@@ -15,9 +15,10 @@ export class LikeService {
     const existsPostLike = await this.likeRepository.existsPostLike(userId, postId);
     if (existsPostLike) {
       await this.likeRepository.deletePostLike(userId, postId)
-      return `${postId}번 게시물에 좋아요를 취소했습니다.`
-    }else {
-      return await this.likeRepository.savePostLike(userId, postId);
+      return {liked: false}
+    } else {
+      await this.likeRepository.savePostLike(userId, postId)
+      return {liked: true}
     }
   }
 

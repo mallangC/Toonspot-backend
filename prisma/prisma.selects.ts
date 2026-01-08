@@ -43,9 +43,3 @@ export const POST_SELECT = {
   createdAt: true,
   updatedAt: true,
 }
-
-export const POST_LIKE_SELECT = {
-  id: true,
-  userId: true,
-  postId: true,
-}
