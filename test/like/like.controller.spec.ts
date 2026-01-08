@@ -78,7 +78,7 @@ describe('LikeController', () => {
   });
 
   it('PATCH /like/:postId : 좋아요 취소 성공', async () => {
-    await prisma.post.update({where: {id: basePost.id}, data: {likeCount: {increment: 1}}});
+    await prisma.post.update({where: {id: basePost.id}, data: {likeCount: 1}});
     await prisma.postLike.create({data: {postId: basePost.id, userId: testUser.id}});
     const result = await request(app.getHttpServer())
         .post(`/like/${basePost.id}`);
