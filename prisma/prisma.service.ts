@@ -12,14 +12,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       datasources: { db: { url: databaseUrl } },
     });
 
-    const modelsWithTimestamps = ['Post', 'User', 'Comment'];
-
+    const skipModels = ['PostLike'];
     this.client = this.$extends({
       query: {
         $allModels: {
           async $allOperations({ model, operation, args, query }) {
-            if (model && modelsWithTimestamps.includes(model) && args) {
+            if (!skipModels.includes(model)) {
               const kstNow = new Date(new Date().getTime() + 9 * 60 * 60 * 1000);
+
               if (operation === 'create') {
                 args.data = args.data ?? {};
                 (args.data as any).createdAt = kstNow;

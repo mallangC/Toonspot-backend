@@ -10,6 +10,7 @@ import {ConfigModule} from "@nestjs/config";
 import {ScheduleModule} from "@nestjs/schedule";
 import {ToonModule} from './toon/toon.module';
 import {PostModule} from "./post/post.module";
+import { LikeModule } from './like/like.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import {PostModule} from "./post/post.module";
     AuthModule,
     ScheduleModule.forRoot(),
     ToonModule,
-    PostModule
+    PostModule,
+    LikeModule
   ],
   providers: [{
     provide: APP_INTERCEPTOR,

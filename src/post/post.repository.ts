@@ -19,11 +19,12 @@ export class PostRepository {
     });
   }
 
-  existsById(id: number) {
-    return this.prisma.client.post.findUnique({
+  async existsById(id: number) {
+    const existsPost = await this.prisma.client.post.findUnique({
       where: {id},
       select: {id: true}
     });
+    return !!existsPost;
   }
 
   findById(id: number, isAdmin: boolean): Promise<PostResponse | null> {
