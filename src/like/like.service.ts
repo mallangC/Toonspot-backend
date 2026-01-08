@@ -11,10 +11,7 @@ export class LikeService {
   }
 
   async togglePostLike(userId: number, postId: number) {
-    const existsPost = await this.postRepository.existsById(postId);
-    if (!existsPost) {
-      throw new CustomException(ExceptionCode.POST_NOT_FOUND);
-    }
+    await this.checkPost(postId);
     const existsPostLike = await this.likeRepository.existsPostLike(userId, postId);
     if (existsPostLike) {
       await this.likeRepository.deletePostLike(userId, postId)
@@ -23,5 +20,16 @@ export class LikeService {
       return await this.likeRepository.savePostLike(userId, postId);
     }
   }
-  
+
+  async getPostLikes(userId: number, postId: number) {
+    await this.checkPost(postId);
+    return await this.likeRepository.existsPostLike(userId, postId);
+  }
+
+  private async checkPost(postId: number) {
+    const existsPost = await this.postRepository.existsById(postId);
+    if (!existsPost) {
+      throw new CustomException(ExceptionCode.POST_NOT_FOUND);
+    }
+  }
 }

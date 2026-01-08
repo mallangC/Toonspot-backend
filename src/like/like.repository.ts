@@ -12,7 +12,7 @@ export class LikeRepository {
     return !!existsPostLike;
   }
 
-  async savePostLike(userId: number, postId: number) {
+  savePostLike(userId: number, postId: number) {
     return this.prisma.client.postLike.create({data: {userId, postId}, select: POST_LIKE_SELECT});
   }
 
