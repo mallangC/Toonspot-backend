@@ -65,23 +65,30 @@ describe('LikeController', () => {
     await app.close();
   });
 
-  it('PATCH /like/:postId : 좋아요 성공', () => {
-    return request(app.getHttpServer())
-        .post(`/like/${basePost.id}`)
-        .expect(res => {
-          console.log(JSON.stringify(res.body, null, 2));
-          expect(res.body.data.liked).toEqual(true);
-        })
+  it('PATCH /like/:postId : 좋아요 성공', async () => {
+    const result = await request(app.getHttpServer())
+        .post(`/like/${basePost.id}`);
+    console.log(JSON.stringify(result.body.data, null, 2))
+    expect(result.body.data.liked).toEqual(true);
+
+    const findPost = await prisma.post.findUnique({where: {id: basePost.id}});
+    console.log(JSON.stringify(findPost, null, 2))
+    expect(findPost!.likeCount).toEqual(1);
+
   });
 
   it('PATCH /like/:postId : 좋아요 취소 성공', async () => {
+    await prisma.post.update({where: {id: basePost.id}, data: {likeCount: 1}});
     await prisma.postLike.create({data: {postId: basePost.id, userId: testUser.id}});
-    return request(app.getHttpServer())
-        .post(`/like/${basePost.id}`)
-        .expect(res => {
-          console.log(JSON.stringify(res.body, null, 2));
-          expect(res.body.data.liked).toEqual(false);
-        })
+    const result = await request(app.getHttpServer())
+        .post(`/like/${basePost.id}`);
+
+    console.log(JSON.stringify(result.body, null, 2));
+    expect(result.body.data.liked).toEqual(false);
+
+    const findPost = await prisma.post.findUnique({where: {id: basePost.id}});
+    console.log(JSON.stringify(findPost, null, 2))
+    expect(findPost!.likeCount).toEqual(0);
   });
 
   it('PATCH /like/:postId : 좋아요 실패', async () => {

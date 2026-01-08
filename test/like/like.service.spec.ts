@@ -16,6 +16,7 @@ describe('LikeService', () => {
 
   const mockPostRepository = {
     existsById: jest.fn(),
+    updateLikeCount: jest.fn(),
   }
 
   const response = {
@@ -55,6 +56,7 @@ describe('LikeService', () => {
     const result = await likeService.togglePostLike(response.userId, response.postId);
     console.log(JSON.stringify(result, null, 2));
     expect(postRepository.existsById).toHaveBeenCalledWith(response.postId);
+    expect(postRepository.updateLikeCount).toHaveBeenCalledWith(response.postId, 1);
     expect(likeRepository.existsPostLike).toHaveBeenCalledWith(response.userId, response.postId);
     expect(likeRepository.savePostLike).toHaveBeenCalledWith(response.userId, response.postId);
     expect(result.liked).toEqual(true);
@@ -68,6 +70,7 @@ describe('LikeService', () => {
     const result = await likeService.togglePostLike(response.userId, response.postId);
     console.log(JSON.stringify(result, null, 2));
     expect(postRepository.existsById).toHaveBeenCalledWith(response.postId);
+    expect(postRepository.updateLikeCount).toHaveBeenCalledWith(response.postId, -1);
     expect(likeRepository.existsPostLike).toHaveBeenCalledWith(response.userId, response.postId);
     expect(likeRepository.deletePostLike).toHaveBeenCalledWith(response.userId, response.postId);
     expect(result.liked).toEqual(false);
