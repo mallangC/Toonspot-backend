@@ -15,4 +15,8 @@ export const ExceptionCode = {
   POST_NOT_FOUND: {message: '게시물을 찾을 수 없습니다.', status: 400},
   POST_NOT_OWNER: {message: '해당 게시글에 대한 권한이 없습니다.', status: 403},
 
+  //댓글
+  COMMENT_NOT_FOUND: {message: '댓글을 찾을 수 없습니다.', status: 400},
+  COMMENT_NOT_OWNER: {message: '해당 댓글에 대한 권한이 없습니다.', status: 403},
+
 } as const;
