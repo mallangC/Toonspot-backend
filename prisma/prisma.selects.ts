@@ -43,3 +43,14 @@ export const POST_SELECT = {
   createdAt: true,
   updatedAt: true,
 }
+
+export const COMMENT_SELECT = {
+  id: true,
+  userId: true,
+  postId: true,
+  status: true,
+  content: true,
+  likeCount: true,
+  createdAt: true,
+  updatedAt: true,
+}

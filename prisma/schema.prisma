@@ -8,16 +8,18 @@ datasource db {
 }
 
 model User {
-  id              Int        @id @default(autoincrement())
-  email           String     @unique
+  id              Int           @id @default(autoincrement())
+  email           String        @unique
   password        String
-  nickname        String     @unique
-  isEmailVerified Boolean    @default(false) @map("is_email_verified")
-  role            UserRole   @default(USER)
-  createdAt       DateTime   @default(now()) @map("created_at")
-  updatedAt       DateTime   @updatedAt @map("updated_at")
-  Posts           Post[]
-  PostLikes       PostLike[]
+  nickname        String        @unique
+  isEmailVerified Boolean       @default(false) @map("is_email_verified")
+  role            UserRole      @default(USER)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  posts           Post[]
+  postLikes       PostLike[]
+  comments         Comment[]
+  commentLikes    CommentLike[]
 
   @@map("user")
 }
@@ -91,7 +93,8 @@ model Post {
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments Comment[]
 
   @@index([userId])
   @@map("post")
@@ -113,4 +116,39 @@ model PostLike {
 
   @@unique([userId, postId])
   @@map("like")
+}
+
+model Comment {
+  id        Int           @id @default(autoincrement())
+  userId    Int           @map("user_id")
+  postId    Int           @map("post_id")
+  status    CommentStatus @default(PUBLISHED)
+  content   String
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+  likeCount Int           @default(0) @map("like_count")
+  likes     CommentLike[]
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("comment")
+}
+
+enum CommentStatus {
+  PUBLISHED
+  HIDDEN
+  DELETED
+}
+
+model CommentLike {
+  id        Int @id @default(autoincrement())
+  userId    Int @map("user_id")
+  commentId Int @map("comment_id")
+
+  comment Comment @relation(fields: [commentId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([userId, commentId])
+  @@map("comment_like")
 }
