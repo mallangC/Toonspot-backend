@@ -11,6 +11,7 @@ import {ScheduleModule} from "@nestjs/schedule";
 import {ToonModule} from './toon/toon.module';
 import {PostModule} from "./post/post.module";
 import { LikeModule } from './like/like.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { LikeModule } from './like/like.module';
     ScheduleModule.forRoot(),
     ToonModule,
     PostModule,
-    LikeModule
+    LikeModule,
+    CommentModule
   ],
   providers: [{
     provide: APP_INTERCEPTOR,
