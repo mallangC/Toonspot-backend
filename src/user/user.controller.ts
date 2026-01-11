@@ -5,7 +5,7 @@ import {RegisterRequestDto} from "./dto/register.request.dto";
 import {LoginRequestDto} from "./dto/login.request.dto";
 import {JwtAuthGuard} from "../auth/jwt/jwt.guard";
 import {CurrentUser} from "../decorators/user.decorator";
-import {UserResponseDto} from "./dto/user.response.dto";
+import {UserResponse} from "./dto/userResponse";
 import {Role} from "../type/user.type";
 import {Roles} from "../decorators/user.roles.decorator";
 import {RoleGuard} from "../auth/role.guard";
@@ -29,7 +29,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@CurrentUser() user: UserResponseDto) {
+  getProfile(@CurrentUser() user: UserResponse) {
     return user;
   }
 
@@ -41,14 +41,14 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.USER)
   @Patch()
-  updateUserDetail(@CurrentUser() user: UserResponseDto, @Body('nickname') nickname: string) {
+  updateUserDetail(@CurrentUser() user: UserResponse, @Body('nickname') nickname: string) {
     return this.userService.updateUserNickname(user.email, nickname);
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.USER)
   @Delete()
-  deleteUser(@CurrentUser() user: UserResponseDto) {
+  deleteUser(@CurrentUser() user: UserResponse) {
     return this.userService.deleteUser(user.email);
   }
 }

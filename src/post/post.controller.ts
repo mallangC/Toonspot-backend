@@ -3,7 +3,7 @@ import {PostService} from "./post.service";
 import {JwtAuthGuard} from "../auth/jwt/jwt.guard";
 import {RoleGuard} from "../auth/role.guard";
 import {PostCreateDto} from "./dto/post.create.dto";
-import {UserResponseDto} from "../user/dto/user.response.dto";
+import {UserResponse} from "../user/dto/userResponse";
 import {CurrentUser} from "../decorators/user.decorator";
 import {PostResponse} from "./dto/post.response";
 import {Roles} from "../decorators/user.roles.decorator";
@@ -20,7 +20,7 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  createPost(@Body() body: PostCreateDto, @CurrentUser() user: UserResponseDto): Promise<PostResponse>{
+  createPost(@Body() body: PostCreateDto, @CurrentUser() user: UserResponse): Promise<PostResponse>{
     return this.postService.createPost(body, user.id);
   }
 
@@ -38,7 +38,7 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getUserPosts(@Query() dto: PostGetPagingDto, @CurrentUser() user: UserResponseDto) {
+  getUserPosts(@Query() dto: PostGetPagingDto, @CurrentUser() user: UserResponse) {
     return this.postService.getUserPosts(dto, user.id, false);
   }
 
@@ -63,7 +63,7 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  updatePost(@Param('id', ParseIntPipe) id: number, @Body() body: PostUpdateDto, @CurrentUser() user: UserResponseDto) {
+  updatePost(@Param('id', ParseIntPipe) id: number, @Body() body: PostUpdateDto, @CurrentUser() user: UserResponse) {
     return this.postService.updatePost(id, body, user.id);
   }
 
@@ -76,7 +76,7 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  deletePost(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: UserResponseDto) {
+  deletePost(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: UserResponse) {
     return this.postService.deletePost(id, user.id);
   }
 }
