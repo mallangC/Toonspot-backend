@@ -11,11 +11,24 @@ export class LikeRepository {
     return !!existsPostLike;
   }
 
+  async existsCommentLike(userId: number, commentId: number) {
+    const existsPostLike = await this.prisma.client.commentLike.findUnique({where: {userId_commentId: {userId, commentId}}});
+    return !!existsPostLike;
+  }
+
   async savePostLike(userId: number, postId: number) {
     await this.prisma.client.postLike.create({data: {userId, postId}});
   }
 
+  async saveCommentLike(userId: number, commentId: number) {
+    await this.prisma.client.commentLike.create({data: {userId, commentId}});
+  }
+
   async deletePostLike(userId: number, postId: number) {
     await this.prisma.client.postLike.delete({where: {userId_postId: {userId, postId}}})
+  }
+
+  async deleteCommentLike(userId: number, commentId: number) {
+    await this.prisma.client.commentLike.delete({where: {userId_commentId: {userId, commentId}}})
   }
 }
