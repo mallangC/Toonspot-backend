@@ -9,7 +9,6 @@ import {UserResponse} from "./dto/userResponse";
 import {Role} from "../type/user.type";
 import {Roles} from "../decorators/user.roles.decorator";
 import {RoleGuard} from "../auth/role.guard";
-import {UpdateRequestDto} from "./dto/update.request.dto";
 
 @Controller('user')
 export class UserController {
