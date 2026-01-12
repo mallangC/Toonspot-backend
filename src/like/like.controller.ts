@@ -2,7 +2,7 @@ import {Controller, Get, Param, ParseIntPipe, Patch, Post, UseGuards} from '@nes
 import {LikeService} from "./like.service";
 import {JwtAuthGuard} from "../auth/jwt/jwt.guard";
 import {CurrentUser} from "../decorators/user.decorator";
-import {UserResponseDto} from "../user/dto/user.response.dto";
+import {UserResponse} from "../user/dto/userResponse";
 
 @Controller('like')
 export class LikeController {
@@ -10,14 +10,14 @@ export class LikeController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post(':postId')
-  togglePostLike(@CurrentUser() user: UserResponseDto, @Param('postId', ParseIntPipe) postId: number) {
+  @Post('post/:postId')
+  togglePostLike(@CurrentUser() user: UserResponse, @Param('postId', ParseIntPipe) postId: number) {
     return this.likeService.togglePostLike(user.id, postId);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':postId')
-  GetPostLike(@CurrentUser() user: UserResponseDto, @Param('postId', ParseIntPipe) postId: number) {
-    return this.likeService.getPostLikes(user.id, postId);
+  @Post('comment/:commentId')
+  toggleCommentLike(@CurrentUser() user: UserResponse, @Param('commentId', ParseIntPipe) commentId: number) {
+    return this.likeService.toggleCommentLike(user.id, commentId);
   }
 }

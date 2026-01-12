@@ -3,11 +3,13 @@ import {LikeRepository} from "./like.repository";
 import {PostRepository} from "../post/post.repository";
 import {CustomException} from "../exception/custom.exception";
 import {ExceptionCode} from "../exception/exception.code";
+import {CommentRepository} from "../comment/comment.repository";
 
 @Injectable()
 export class LikeService {
   constructor(private readonly likeRepository: LikeRepository,
-              private readonly postRepository: PostRepository,) {
+              private readonly postRepository: PostRepository,
+              private readonly commentRepository: CommentRepository) {
   }
 
   async togglePostLike(userId: number, postId: number) {
@@ -24,15 +26,31 @@ export class LikeService {
     }
   }
 
-  async getPostLikes(userId: number, postId: number) {
-    await this.checkPost(postId);
-    return await this.likeRepository.existsPostLike(userId, postId);
+  async toggleCommentLike(userId: number, commentId: number) {
+    await this.checkComment(commentId);
+    const existsPostLike = await this.likeRepository.existsCommentLike(userId, commentId);
+    if (existsPostLike) {
+      await this.likeRepository.deleteCommentLike(userId, commentId)
+      await this.commentRepository.updateLikeCount(commentId, -1)
+      return {liked: false}
+    } else {
+      await this.likeRepository.saveCommentLike(userId, commentId)
+      await this.commentRepository.updateLikeCount(commentId, 1)
+      return {liked: true}
+    }
   }
 
   private async checkPost(postId: number) {
     const existsPost = await this.postRepository.existsById(postId);
     if (!existsPost) {
       throw new CustomException(ExceptionCode.POST_NOT_FOUND);
+    }
+  }
+
+  private async checkComment(commentId: number) {
+    const existsComment = await this.commentRepository.existsById(commentId);
+    if (!existsComment) {
+      throw new CustomException(ExceptionCode.COMMENT_NOT_FOUND);
     }
   }
 }
