@@ -8,18 +8,19 @@ datasource db {
 }
 
 model User {
-  id              Int           @id @default(autoincrement())
-  email           String        @unique
-  password        String
-  nickname        String        @unique
-  isEmailVerified Boolean       @default(false) @map("is_email_verified")
-  role            UserRole      @default(USER)
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  posts           Post[]
-  postLikes       PostLike[]
-  comments         Comment[]
-  commentLikes    CommentLike[]
+  id                Int           @id @default(autoincrement())
+  email             String        @unique
+  password          String
+  nickname          String        @unique
+  role              UserRole      @default(USER)
+  verificationToken String        @unique @map("verification_token")
+  status            UserStatus    @default(PENDING)
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  posts             Post[]
+  postLikes         PostLike[]
+  comments          Comment[]
+  commentLikes      CommentLike[]
 
   @@map("user")
 }
@@ -27,6 +28,13 @@ model User {
 enum UserRole {
   ADMIN
   USER
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING
+  BLOCKED
+  DELETED
 }
 
 model Toon {
@@ -93,7 +101,7 @@ model Post {
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
 
-  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments Comment[]
 
   @@index([userId])
