@@ -22,10 +22,12 @@
     "test:cov": "dotenv -e .env.test -- jest --coverage",
     "test:e2e": "dotenv -e .env.test -- jest --config ./jest-e2e.json",
     "prisma:test:migrate": "dotenv -e .env.test -- npx prisma migrate dev --name test_init",
+    "prisma:test:reset": "dotenv -e .env.test -- prisma migrate reset",
     "prisma:test:push": "npx prisma db push --env-file .env.test --accept-data-loss",
     "prisma:deploy": "npx prisma migrate deploy"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -40,10 +42,12 @@
     "class-validator": "^0.14.3",
     "dotenv": "^17.2.3",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.12",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -93,7 +97,9 @@
       "node_modules",
       "<rootDir>"
     ],
-    "setupFiles": ["<rootDir>/test/setup-env.ts"],
+    "setupFiles": [
+      "<rootDir>/test/setup-env.ts"
+    ],
     "testMatch": [
       "<rootDir>/**/*.spec.ts"
     ],
