@@ -8,6 +8,7 @@ import {Role} from "../../src/type/user.type";
 import {PostCreateDto} from "../../src/post/dto/post.create.dto";
 import request from "supertest";
 import {CommentDto} from "../../src/comment/dto/comment.dto";
+import {UserStatus} from "@prisma/client";
 
 describe('LikeController', () => {
   let app: INestApplication;
@@ -50,7 +51,7 @@ describe('LikeController', () => {
       content: '테스트 댓글 내용',
     } as CommentDto
 
-    testUser = await prisma.user.create({data: userData});
+    testUser = await prisma.user.create({data: {...userData, status: UserStatus.ACTIVE, verificationToken: 'token'}});
     basePost = await prisma.post.create({data: {...createPostDto, id: 1, userId: testUser.id}});
     baseComment = await prisma.comment.create({data: {...createCommentDto, id: 1, userId: testUser.id, postId: basePost.id}});
     MockAuthGuard.mockUser = {

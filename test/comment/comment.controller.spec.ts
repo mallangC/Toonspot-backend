@@ -8,7 +8,7 @@ import {Role} from "../../src/type/user.type";
 import {PostCreateDto} from "../../src/post/dto/post.create.dto";
 import {CommentDto} from "../../src/comment/dto/comment.dto";
 import {CommentUpdateStatusDto} from "../../src/comment/dto/comment.update.status.dto";
-import {CommentStatus} from "@prisma/client";
+import {CommentStatus, UserStatus} from "@prisma/client";
 import request from "supertest";
 import {ExceptionCode} from "../../src/exception/exception.code";
 
@@ -72,8 +72,8 @@ describe('CommentController', () => {
       title: '테스트 게시글',
       content: '테스트 게시글 내용',
     } as PostCreateDto
-    testUser = await prisma.user.create({data: userData});
-    adminUser = await prisma.user.create({data: adminData});
+    testUser = await prisma.user.create({data: {...userData, status: UserStatus.ACTIVE, verificationToken: 'token'}});
+    adminUser = await prisma.user.create({data: {...adminData, status: UserStatus.ACTIVE, verificationToken: 'token2'}});
     basePost = await prisma.post.create({data: {...postData, userId: testUser.id, id:1}});
   });
 
