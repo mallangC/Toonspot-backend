@@ -5,7 +5,7 @@ import {JwtAuthGuard} from "../../src/auth/jwt/jwt.guard";
 import {MockAuthGuard} from "../mocks/mock-auth.guard";
 import {INestApplication, ValidationPipe} from "@nestjs/common";
 import {Role} from "../../src/type/user.type";
-import {ToonGenre, ToonProvider, ToonStatus} from "@prisma/client";
+import {ToonGenre, ToonProvider, ToonStatus, UserStatus} from "@prisma/client";
 import {ToonCreateDto} from "../../src/toon/dto/toon.create.dto";
 import request from "supertest";
 import {ExceptionCode} from "../../src/exception/exception.code";
@@ -103,7 +103,7 @@ describe('ToonController', () => {
       password: 'password1234',
       nickname: '김테스트'
     }
-    await prisma.user.create({data: {...userData, role: Role.ADMIN}});
+    await prisma.user.create({data: {...userData, role: Role.ADMIN, status: UserStatus.ACTIVE, verificationToken: 'token'}});
   });
 
   beforeEach(async () => {

@@ -7,7 +7,7 @@ import {PrismaService} from "../../prisma/prisma.service";
 import {Role} from "../../src/type/user.type";
 import request from "supertest";
 import {PostCreateDto} from "../../src/post/dto/post.create.dto";
-import {PostStatus} from "@prisma/client";
+import {PostStatus, UserStatus} from "@prisma/client";
 import {ExceptionCode} from "../../src/exception/exception.code";
 import {PostUpdateDto} from "../../src/post/dto/post.update.dto";
 import {PostUpdateStatusDto} from "../../src/post/dto/post.update.status.dto";
@@ -63,8 +63,8 @@ describe('PostController', () => {
       nickname: '김어드민',
       role: Role.ADMIN
     }
-    testUser = await prisma.user.create({data: userData});
-    adminUser = await prisma.user.create({data: adminData});
+    testUser = await prisma.user.create({data: {...userData, status: UserStatus.ACTIVE, verificationToken: 'token'}});
+    adminUser = await prisma.user.create({data: {...adminData, status: UserStatus.ACTIVE, verificationToken: 'token2'}});
   });
 
   beforeEach(async () => {
