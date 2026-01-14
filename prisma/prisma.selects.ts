@@ -2,14 +2,17 @@ import {Prisma} from "@prisma/client";
 
 type UserSelect = Prisma.UserSelect
 type ToonSelect = Prisma.ToonSelect
+type PostSelect = Prisma.PostSelect
+type CommentSelect = Prisma.CommentSelect
 
 export const USER_SAFE_SELECT: UserSelect = {
   id: true,
   nickname: true,
   email: true,
+  role: true,
+  status: true,
   createdAt: true,
   updatedAt: true,
-  role: true,
 }
 
 export const TOON_SELECT: ToonSelect = {
@@ -32,7 +35,7 @@ export const TOON_SELECT: ToonSelect = {
   updatedAt: true,
 }
 
-export const POST_SELECT = {
+export const POST_SELECT: PostSelect = {
   id: true,
   userId: true,
   title: true,
@@ -44,7 +47,7 @@ export const POST_SELECT = {
   updatedAt: true,
 }
 
-export const COMMENT_SELECT = {
+export const COMMENT_SELECT: CommentSelect = {
   id: true,
   userId: true,
   postId: true,
