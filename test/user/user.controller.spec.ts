@@ -11,10 +11,12 @@ import {ExceptionCode} from "../../src/exception/exception.code";
 import * as bcrypt from "bcrypt";
 import {UserRole, UserStatus} from "@prisma/client";
 import {UserUpdateStatusDto} from "../../src/user/dto/user.update.status.dto";
+import {CACHE_MANAGER} from "@nestjs/cache-manager";
 
 describe('UserController', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let cacheManager: Cache;
 
   const dto = {
     email: 'test@email.com',
@@ -32,7 +34,7 @@ describe('UserController', () => {
     app = module.createNestApplication();
     await app.init();
 
-
+    cacheManager = module.get<Cache>(CACHE_MANAGER);
     prisma = module.get<PrismaService>(PrismaService);
     MockAuthGuard.mockUser = {email: 'test@email.com', name: '김테스트', role: UserRole.USER};
   });
@@ -44,6 +46,10 @@ describe('UserController', () => {
 
   afterAll(async () => {
     await prisma.user.deleteMany();
+    const store = (cacheManager as any).store;
+    if (store.client) {
+      await store.client.quit();
+    }
     await app.close();
   });
 

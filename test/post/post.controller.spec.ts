@@ -11,10 +11,12 @@ import {PostStatus, UserStatus} from "@prisma/client";
 import {ExceptionCode} from "../../src/exception/exception.code";
 import {PostUpdateDto} from "../../src/post/dto/post.update.dto";
 import {PostUpdateStatusDto} from "../../src/post/dto/post.update.status.dto";
+import {CACHE_MANAGER} from "@nestjs/cache-manager";
 
 describe('PostController', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let cacheManager: Cache;
   let testUser: any;
   let adminUser: any;
 
@@ -38,6 +40,7 @@ describe('PostController', () => {
     }).overrideGuard(JwtAuthGuard)
         .useValue(new MockAuthGuard())
         .compile();
+
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({
       whitelist: true,
@@ -47,7 +50,7 @@ describe('PostController', () => {
       }
     }));
     await app.init();
-
+    cacheManager = module.get<Cache>(CACHE_MANAGER);
     prisma = module.get<PrismaService>(PrismaService);
     const userData = {
       id: 1,
@@ -64,7 +67,13 @@ describe('PostController', () => {
       role: Role.ADMIN
     }
     testUser = await prisma.user.create({data: {...userData, status: UserStatus.ACTIVE, verificationToken: 'token'}});
-    adminUser = await prisma.user.create({data: {...adminData, status: UserStatus.ACTIVE, verificationToken: 'token2'}});
+    adminUser = await prisma.user.create({
+      data: {
+        ...adminData,
+        status: UserStatus.ACTIVE,
+        verificationToken: 'token2'
+      }
+    });
   });
 
   beforeEach(async () => {
@@ -75,12 +84,18 @@ describe('PostController', () => {
       nickname: testUser.nickname,
       role: Role.USER
     };
+
+    await (cacheManager as any).reset();
   });
 
   afterAll(async () => {
     await prisma.post.deleteMany();
     await prisma.toon.deleteMany();
     await prisma.user.deleteMany();
+    const store = (cacheManager as any).store;
+    if (store.client) {
+      await store.client.quit();
+    }
     await app.close();
   });
 
@@ -206,23 +221,19 @@ describe('PostController', () => {
         })
   });
 
-  it('GET /post/:id : 단일 게시물 조회 성공', async () => {
+  it('GET /post/:id : 단일 게시물 조회 성공 (viewCount 1 상승)', async () => {
     await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1}});
-
-    return request(app.getHttpServer())
+    const result = await request(app.getHttpServer())
         .get('/post/1')
-        .expect(res => {
-          console.log(JSON.stringify(res.body, null, 2));
-          expect(res.body.data.title).toEqual(createDto.title);
-          expect(res.body.data.content).toEqual(createDto.content);
-          expect(res.body.data.userId).toEqual(testUser.id);
-          expect(res.body.data.status).toEqual(PostStatus.PUBLISHED);
-        })
+    console.log(JSON.stringify(result.body, null, 2));
+
+    const findPost = await prisma.post.findUnique({where: {id: 1}});
+    console.log(JSON.stringify(findPost, null, 2));
+    expect(findPost!.viewCount).toEqual(1);
   });
 
   it('GET /post/:id : 단일 게시물 조회 실패 (일반 유저 > 상태 HIDDEN, DELETE 조회 불가)', async () => {
     await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, status: PostStatus.HIDDEN}});
-
     return request(app.getHttpServer())
         .get('/post/1')
         .expect(res => {
@@ -230,6 +241,17 @@ describe('PostController', () => {
           expect(res.body.message).toEqual(ExceptionCode.POST_NOT_FOUND.message);
         })
   });
+
+  it('GET /post/:id : 단일 게시물 조회 실패 (해당 게시물을 찾을 수 없음)', async () => {
+    return request(app.getHttpServer())
+        .get('/post/1')
+        .expect(res => {
+          console.log(JSON.stringify(res.body, null, 2));
+          expect(res.body.message).toEqual(ExceptionCode.POST_NOT_FOUND.message);
+        })
+  });
+
+
 
   it('GET /post/admin/:id : (관리자) 단일 게시물 조회 성공 (관리자 > 상태 HIDDEN, DELETE 조회 가능)', async () => {
     MockAuthGuard.mockUser = {

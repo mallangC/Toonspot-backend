@@ -11,10 +11,12 @@ import {CommentUpdateStatusDto} from "../../src/comment/dto/comment.update.statu
 import {CommentStatus, UserStatus} from "@prisma/client";
 import request from "supertest";
 import {ExceptionCode} from "../../src/exception/exception.code";
+import {CACHE_MANAGER} from "@nestjs/cache-manager";
 
 describe('CommentController', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let cacheManager: Cache;
   let testUser: any;
   let adminUser: any;
   let basePost: any;
@@ -48,6 +50,7 @@ describe('CommentController', () => {
     }));
     await app.init();
 
+    cacheManager = module.get<Cache>(CACHE_MANAGER);
     prisma = module.get<PrismaService>(PrismaService);
     await prisma.comment.deleteMany();
     await prisma.post.deleteMany();
@@ -92,6 +95,10 @@ describe('CommentController', () => {
     await prisma.post.deleteMany();
     await prisma.toon.deleteMany();
     await prisma.user.deleteMany();
+    const store = (cacheManager as any).store;
+    if (store.client) {
+      await store.client.quit();
+    }
     await app.close();
   });
 
