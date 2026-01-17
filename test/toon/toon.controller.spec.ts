@@ -11,10 +11,12 @@ import request from "supertest";
 import {ExceptionCode} from "../../src/exception/exception.code";
 import {ToonUpdateDto} from "../../src/toon/dto/toon.update.dto";
 import {ToonActiveDto} from "../../src/toon/dto/toon.active.dto";
+import {CACHE_MANAGER} from "@nestjs/cache-manager";
 
 describe('ToonController', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let cacheManager: Cache;
 
   const createDto = {
     toonId: 1234,
@@ -97,6 +99,7 @@ describe('ToonController', () => {
     }));
     await app.init();
 
+    cacheManager = module.get<Cache>(CACHE_MANAGER);
     prisma = module.get<PrismaService>(PrismaService);
     const userData = {
       email: 'test@email.com',
@@ -114,6 +117,10 @@ describe('ToonController', () => {
   afterAll(async () => {
     await prisma.user.deleteMany();
     await prisma.toon.deleteMany();
+    const store = (cacheManager as any).store;
+    if (store.client) {
+      await store.client.quit();
+    }
     await app.close();
   });
 

@@ -10,6 +10,7 @@ import {PostGetPagingDto} from "../../src/post/dto/post.get.paging.dto";
 import {PostPagingResponse} from "../../src/post/dto/post.paging.response";
 import {PostUpdateDto} from "../../src/post/dto/post.update.dto";
 import {PostUpdateStatusDto} from "../../src/post/dto/post.update.status.dto";
+import {CACHE_MANAGER} from "@nestjs/cache-manager";
 
 describe('PostService', () => {
   let postService: PostService;
@@ -30,6 +31,11 @@ describe('PostService', () => {
     existsById: jest.fn()
   }
 
+  const mockCacheManager = {
+    get: jest.fn(),
+    set: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
@@ -39,7 +45,11 @@ describe('PostService', () => {
       }, {
         provide: UserRepository,
         useValue: mockUserRepository,
-      }],
+      },
+        {
+          provide: CACHE_MANAGER,
+          useValue: mockCacheManager,
+        }],
     }).compile();
 
     postService = module.get<PostService>(PostService);
@@ -93,19 +103,20 @@ describe('PostService', () => {
   });
 
   it('게시물 단일 조회 성공', async () => {
+    (postRepository.existsById as jest.Mock).mockResolvedValue(true);
     (postRepository.findById as jest.Mock).mockResolvedValue(postResponse);
 
-    const result = await postService.getPost(postResponse.id, true);
+    const result = await postService.getPost(postResponse.id, true, "");
     console.log(JSON.stringify(result, null, 2))
     expect(postRepository.findById).toHaveBeenCalledWith(postResponse.id, true);
     expect(result?.id).toEqual(postResponse.id);
   });
 
   it('게시물 단일 조회 실패 (게시물을 찾을 수 없음)', async () => {
-    (postRepository.findById as jest.Mock).mockResolvedValue(null);
+    (postRepository.existsById as jest.Mock).mockResolvedValue(false);
 
-    await expect(postService.getPost(postResponse.id, true)).rejects.toThrow(ExceptionCode.POST_NOT_FOUND.message);
-    expect(postRepository.findById).toHaveBeenCalledWith(postResponse.id, true);
+    await expect(postService.getPost(postResponse.id, false, '')).rejects.toThrow(ExceptionCode.POST_NOT_FOUND.message);
+    expect(postRepository.existsById).toHaveBeenCalledWith(postResponse.id);
   });
 
   it('게시물 페이징 조회 성공', async () => {

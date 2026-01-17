@@ -9,10 +9,12 @@ import {PostCreateDto} from "../../src/post/dto/post.create.dto";
 import request from "supertest";
 import {CommentDto} from "../../src/comment/dto/comment.dto";
 import {UserStatus} from "@prisma/client";
+import {CACHE_MANAGER} from "@nestjs/cache-manager";
 
 describe('LikeController', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let cacheManager: Cache;
   let testUser: any;
   let basePost: any;
   let baseComment: any;
@@ -32,6 +34,7 @@ describe('LikeController', () => {
       }
     }));
     await app.init();
+    cacheManager = module.get<Cache>(CACHE_MANAGER);
     prisma = module.get<PrismaService>(PrismaService);
 
     const userData = {
@@ -72,6 +75,10 @@ describe('LikeController', () => {
     await prisma.postLike.deleteMany();
     await prisma.post.deleteMany();
     await prisma.user.deleteMany();
+    const store = (cacheManager as any).store;
+    if (store.client) {
+      await store.client.quit();
+    }
     await app.close();
   });
 
