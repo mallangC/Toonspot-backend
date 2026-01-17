@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import {PostRepository} from "./post.repository";
 import {PostCreateDto} from "./dto/post.create.dto";
 import {CustomException} from "../exception/custom.exception";
@@ -8,11 +8,14 @@ import {PostUpdateDto} from "./dto/post.update.dto";
 import {PostGetPagingDto} from "./dto/post.get.paging.dto";
 import {PostStatus} from "@prisma/client";
 import {UserRepository} from "../user/user.repository";
+import {CACHE_MANAGER} from "@nestjs/cache-manager";
+import type {Cache} from "cache-manager";
 
 @Injectable()
 export class PostService {
   constructor(private readonly postRepository: PostRepository,
-              private readonly userRepository: UserRepository) {
+              private readonly userRepository: UserRepository,
+              @Inject(CACHE_MANAGER) private cacheManager: Cache) {
   }
 
   async createPost(dto: PostCreateDto, userId: number): Promise<PostResponse> {
@@ -27,8 +30,19 @@ export class PostService {
     return await this.postRepository.findAllByUserId(dto, userId, isAdmin);
   }
 
-  async getPost(id: number, isAdmin: boolean): Promise<PostResponse> {
-    return await this.findPostById(id, isAdmin);
+  async getPost(id: number, isAdmin: boolean, userIdentifier: string): Promise<PostResponse> {
+    if (!isAdmin) {
+      const existsPost = await this.postRepository.existsById(id);
+      if (!existsPost) {
+        throw new CustomException(ExceptionCode.POST_NOT_FOUND);
+      }
+      const checkLock = await this.checkViewLock(id, userIdentifier);
+      if (!checkLock) {
+        await this.postRepository.updateViewCount(id);
+      }
+    }
+    const findPost = await this.findPostById(id, isAdmin);
+    return findPost!;
   }
 
   getPostsPaged(dto: PostGetPagingDto, isAdmin: boolean) {
@@ -67,5 +81,16 @@ export class PostService {
     if (findPost.userId !== userId) {
       throw new CustomException(ExceptionCode.POST_NOT_OWNER);
     }
+  }
+
+  private async checkViewLock(postId: number, userIdentifier: string) {
+    const key = `view_lock:${postId}:${userIdentifier}`;
+
+    const isLocked = await this.cacheManager.get(key);
+    if (isLocked) {
+      return true;
+    }
+    await this.cacheManager.set(key, '1', 300000);
+    return false;
   }
 }

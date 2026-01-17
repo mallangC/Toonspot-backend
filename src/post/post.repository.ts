@@ -21,7 +21,7 @@ export class PostRepository {
 
   async existsById(id: number) {
     const existsPost = await this.prisma.client.post.findUnique({
-      where: {id},
+      where: {id, status: PostStatus.PUBLISHED},
       select: {id: true}
     });
     return !!existsPost;
@@ -81,6 +81,13 @@ export class PostRepository {
       data: {status},
       select: POST_SELECT
     });
+  }
+
+  updateViewCount(id: number): Promise<PostResponse> {
+    return this.prisma.client.post.update({
+      where: {id},
+      data: {viewCount:{increment: 1}}
+    })
   }
 
   updateLikeCount(id: number, num: number): Promise<PostResponse> {
