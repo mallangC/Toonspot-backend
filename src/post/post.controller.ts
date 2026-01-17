@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Ip, Param, ParseIntPipe, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {PostService} from "./post.service";
 import {JwtAuthGuard} from "../auth/jwt/jwt.guard";
 import {RoleGuard} from "../auth/role.guard";
@@ -12,6 +12,7 @@ import {PostGetPagingDto} from "./dto/post.get.paging.dto";
 import {PostUpdateStatusDto} from "./dto/post.update.status.dto";
 import {PostUpdateDto} from "./dto/post.update.dto";
 import {PostGetPagingAdminDto} from "./dto/post.get.paging.admin.dto";
+import {OptionalJwtAuthGuard} from "../auth/jwt/optional.jwt.guard";
 
 @Controller('post')
 export class PostController {
@@ -20,7 +21,7 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  createPost(@Body() body: PostCreateDto, @CurrentUser() user: UserResponse): Promise<PostResponse>{
+  createPost(@Body() body: PostCreateDto, @CurrentUser() user: UserResponse): Promise<PostResponse> {
     return this.postService.createPost(body, user.id);
   }
 
@@ -49,16 +50,20 @@ export class PostController {
     return this.postService.getUserPosts(dto, dto.userId, true);
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':id')
-  getPost(@Param('id', ParseIntPipe) id: number) {
-    return this.postService.getPost(id, false)
+  async getPost(@Param('id', ParseIntPipe) id: number,
+                @CurrentUser() user: UserResponse | null,
+                @Ip() ip: string) {
+    const userIdentifier = user ? user.id.toString() : ip;
+    return await this.postService.getPost(id, false, userIdentifier)
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.ADMIN)
   @Get('admin/:id')
   getPostForAdmin(@Param('id', ParseIntPipe) id: number) {
-    return this.postService.getPost(id, true)
+    return this.postService.getPost(id, true, '')
   }
 
   @UseGuards(JwtAuthGuard)
