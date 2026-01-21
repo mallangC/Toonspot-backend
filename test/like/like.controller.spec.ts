@@ -82,9 +82,9 @@ describe('LikeController', () => {
     await app.close();
   });
 
-  it('POST /like/post/:postId : 좋아요 성공', async () => {
+  it('POST /post/:postId/like : 좋아요 성공', async () => {
     const result = await request(app.getHttpServer())
-        .post(`/like/post/${basePost.id}`);
+        .post(`/post/${basePost.id}/like`);
     console.log(JSON.stringify(result.body.data, null, 2))
     expect(result.body.data.liked).toEqual(true);
 
@@ -93,11 +93,11 @@ describe('LikeController', () => {
     expect(findPost!.likeCount).toEqual(1);
   });
 
-  it('POST /like/post/:postId : 좋아요 취소 성공', async () => {
+  it('POST /post/:postId/like : 좋아요 취소 성공', async () => {
     await prisma.post.update({where: {id: basePost.id}, data: {likeCount: 1}});
     await prisma.postLike.create({data: {postId: basePost.id, userId: testUser.id}});
     const result = await request(app.getHttpServer())
-        .post(`/like/post/${basePost.id}`);
+        .post(`/post/${basePost.id}/like`);
 
     console.log(JSON.stringify(result.body, null, 2));
     expect(result.body.data.liked).toEqual(false);
@@ -107,19 +107,19 @@ describe('LikeController', () => {
     expect(findPost!.likeCount).toEqual(0);
   });
 
-  it('POST /like/:postId : 좋아요 실패', async () => {
+  it('POST /post/:postId/like : 좋아요 실패', async () => {
     await prisma.postLike.create({data: {postId: basePost.id, userId: testUser.id}});
     return request(app.getHttpServer())
-        .post(`/like/post/2`)
+        .post(`/post/2/like`)
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
           expect(res.body.message).toEqual(`게시물을 찾을 수 없습니다.`);
         })
   });
 
-  it('POST /like/comment/:commentId : 좋아요 성공', async () => {
+  it('POST /comment/:commentId/like : 좋아요 성공', async () => {
     const result = await request(app.getHttpServer())
-        .post(`/like/comment/${baseComment.id}`);
+        .post(`/comment/${baseComment.id}/like`);
     console.log(JSON.stringify(result.body.data, null, 2))
     expect(result.body.data.liked).toEqual(true);
 
