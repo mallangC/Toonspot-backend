@@ -14,6 +14,7 @@ import {LikeModule} from './like/like.module';
 import {CommentModule} from './comment/comment.module';
 import {CacheModule} from "@nestjs/cache-manager";
 import {redisStore} from "cache-manager-redis-yet";
+import { FavoriteModule } from './favorite/favorite.module';
 import process from "node:process";
 
 @Module({
@@ -41,6 +42,7 @@ import process from "node:process";
     PostModule,
     LikeModule,
     CommentModule,
+    FavoriteModule,
 
   ],
   providers: [{
