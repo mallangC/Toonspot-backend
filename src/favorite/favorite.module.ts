@@ -1,7 +1,7 @@
 import {Module} from '@nestjs/common';
 import {FavoriteController} from './favorite.controller';
 import {FavoriteService} from './favorite.service';
-import {FavoriteRepository} from "./favorit.repository";
+import {FavoriteRepository} from "./favorite.repository";
 import {ToonModule} from "../toon/toon.module";
 import {PrismaModule} from "../../prisma/prisma.module";
 
