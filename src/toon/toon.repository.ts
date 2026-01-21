@@ -132,6 +132,12 @@ export class ToonRepository {
       select: TOON_SELECT
     });
   }
+  updateFavoriteCount(id: number, num: number) {
+    return this.prisma.client.toon.update({
+      where: {id},
+      data: {favoriteCount: {increment: num}}
+    })
+  }
 
   // 삭제
   async delete(id: number) {
