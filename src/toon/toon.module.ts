@@ -8,6 +8,7 @@ import {ToonScheduler} from "./toon.scheduler";
 @Module({
   imports: [PrismaModule],
   controllers: [ToonController],
-  providers: [ToonService, ToonRepository, ToonScheduler]
+  providers: [ToonService, ToonRepository, ToonScheduler],
+  exports: [ToonRepository]
 })
 export class ToonModule {}

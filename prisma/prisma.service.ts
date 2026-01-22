@@ -12,7 +12,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       datasources: { db: { url: databaseUrl } },
     });
 
-    const skipModels = ['PostLike', 'CommentLike'];
+    const skipModels = ['PostLike', 'CommentLike', 'Favorite'];
     this.client = this.$extends({
       query: {
         $allModels: {

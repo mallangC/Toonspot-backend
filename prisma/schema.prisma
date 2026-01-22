@@ -21,6 +21,7 @@ model User {
   postLikes         PostLike[]
   comments          Comment[]
   commentLikes      CommentLike[]
+  favorites         Favorite[]
 
   @@map("user")
 }
@@ -38,25 +39,25 @@ enum UserStatus {
 }
 
 model Toon {
-  id           Int          @id @default(autoincrement())
-  toonId       Int          @map("toon_id")
-  provider     ToonProvider
-  title        String
-  authors      String
-  summary      String?
-  genre        ToonGenre?
-  rating       Float?
-  status       ToonStatus
-  isAdult      Boolean      @map("is_adult")
-  isActive     Boolean      @default(true) @map("is_active")
-  imageUrl     String       @map("image_url")
-  pageUrl      String       @map("page_url")
-  totalEpisode Int?         @map("total_episode")
-  publishDays  String       @map("publish_days")
-  // favoritesCount Int          @default(0) @map("favorites_count")
-  // likesCount     Int          @default(0) @map("likes_count")
-  createdAt    DateTime     @default(now()) @map("created_at")
-  updatedAt    DateTime     @updatedAt @map("updated_at")
+  id            Int          @id @default(autoincrement())
+  toonId        Int          @map("toon_id")
+  provider      ToonProvider
+  title         String
+  authors       String
+  summary       String?
+  genre         ToonGenre?
+  rating        Float?
+  status        ToonStatus
+  isAdult       Boolean      @map("is_adult")
+  isActive      Boolean      @default(true) @map("is_active")
+  imageUrl      String       @map("image_url")
+  pageUrl       String       @map("page_url")
+  totalEpisode  Int?         @map("total_episode")
+  publishDays   String       @map("publish_days")
+  favoriteCount Int          @default(0) @map("favorite_count")
+  favoritBy     Favorite[]
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
 
   @@unique([toonId, provider])
   @@map("toon")
@@ -87,6 +88,18 @@ enum ToonStatus {
   ONGOING
   PAUSED
   FINISHED
+}
+
+model Favorite {
+  id     Int @id @default(autoincrement())
+  userId Int @map("user_id")
+  toonId Int @map("toon_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  toon Toon @relation(fields: [toonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, toonId])
+  @@map("favorite")
 }
 
 model Post {
