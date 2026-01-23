@@ -12,9 +12,9 @@ export class PostRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  save(dto: PostCreateDto, userId: number): Promise<PostResponse> {
+  save(dto: PostCreateDto, userId: number, toonId: number): Promise<PostResponse> {
     return this.prisma.client.post.create({
-      data: {...dto, userId},
+      data: {...dto, userId, toonId},
       select: POST_SELECT
     });
   }
@@ -38,9 +38,10 @@ export class PostRepository {
     });
   }
 
-  findAll(dto: PostGetPagingDto, isAdmin: boolean) {
+  findAll(dto: PostGetPagingDto, isAdmin: boolean, toonId: number) {
     const {page, keyword} = dto;
     const whereClause = {
+      toonId,
       ...(isAdmin ? {} : {status: PostStatus.PUBLISHED}),
       ...(keyword ? {
         OR: [

@@ -33,19 +33,19 @@ async function fetchWebtoonData(day: string): Promise<SyncResult> {
     });
     const resultData = response.data.data[0].cardGroups[0].cards.slice(0, 10);
     for (const item of resultData) {
-      const toonId = item.content.id;
+      const platformId = item.content.id;
 
       try {
-        const totalEpisode: any = await fetchLatestEpisodeData(toonId);
-        const summary: any = await fetchSummaryData(toonId);
+        const totalEpisode: any = await fetchLatestEpisodeData(platformId);
+        const summary: any = await fetchSummaryData(platformId);
         const title =  item.content.title;
-        const findToon = existingToons.find(toon => toon.toonId === toonId);
+        const findToon = existingToons.find(toon => toon.platformId === platformId);
 
         if (findToon) {
           if (findToon.status !== ToonStatus.FINISHED || findToon.totalEpisode !== totalEpisode) {
             console.log(`업데이트 : ${title}`);
             const webtoon = {
-              toonId,
+              platformId,
               title,
               status: ToonStatus.FINISHED,
               publishDays: '완결',
@@ -58,7 +58,7 @@ async function fetchWebtoonData(day: string): Promise<SyncResult> {
         }else{
           console.log(`추가 : ${title}`);
           const webtoon = {
-            toonId,
+            platformId,
             provider: ToonProvider.KAKAO_W,
             title: item.content.title,
             authors: item.content.authors.map(author => author.name).join(', '),
@@ -67,7 +67,7 @@ async function fetchWebtoonData(day: string): Promise<SyncResult> {
             isAdult: item.content.adult,
             publishDays: day,
             imageUrl: `${item.content.featuredCharacterImageB}.png`,
-            pageUrl: `https://webtoon.kakao.com/content/${item.content.seoId}/${toonId}`,
+            pageUrl: `https://webtoon.kakao.com/content/${item.content.seoId}/${platformId}`,
             summary: summary ? summary.summary : null,
             genre: summary ? summary.genre : null,
             totalEpisode: totalEpisode,
@@ -77,7 +77,7 @@ async function fetchWebtoonData(day: string): Promise<SyncResult> {
         }
 
       } catch (e) {
-        console.error(`❌ [ID: ${toonId}] 상세 정보 수집 실패: ${e.message}`);
+        console.error(`❌ [ID: ${platformId}] 상세 정보 수집 실패: ${e.message}`);
         await sleep(500);
       }
     }

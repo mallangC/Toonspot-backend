@@ -14,74 +14,78 @@ import {PostUpdateDto} from "./dto/post.update.dto";
 import {PostGetPagingAdminDto} from "./dto/post.get.paging.admin.dto";
 import {OptionalJwtAuthGuard} from "../auth/jwt/optional.jwt.guard";
 
-@Controller('post')
+@Controller()
 export class PostController {
   constructor(private readonly postService: PostService) {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post()
-  createPost(@Body() body: PostCreateDto, @CurrentUser() user: UserResponse): Promise<PostResponse> {
-    return this.postService.createPost(body, user.id);
+  @Post('toon/:toonId/post')
+  createPost(@Body() body: PostCreateDto,
+             @CurrentUser() user: UserResponse,
+             @Param('toonId', ParseIntPipe) toonId: number): Promise<PostResponse> {
+    return this.postService.createPost(body, user.id, toonId);
   }
 
-  @Get()
-  getPostsPaged(@Query() dto: PostGetPagingDto) {
-    return this.postService.getPostsPaged(dto, false);
+  @Get('toon/:toonId/post')
+  getPostsPaged(@Query() dto: PostGetPagingDto,
+                @Param('toonId', ParseIntPipe) toonId: number) {
+    return this.postService.getPostsPaged(dto, false, toonId);
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.ADMIN)
-  @Get('admin')
-  getPostsPagedForAdmin(@Query() dto: PostGetPagingDto) {
-    return this.postService.getPostsPaged(dto, true);
+  @Get('toon/:toonId/post/admin')
+  getPostsPagedForAdmin(@Query() dto: PostGetPagingDto,
+                        @Param('toonId', ParseIntPipe) toonId: number) {
+    return this.postService.getPostsPaged(dto, true, toonId);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('me')
+  @Get('post/me')
   getUserPosts(@Query() dto: PostGetPagingDto, @CurrentUser() user: UserResponse) {
     return this.postService.getUserPosts(dto, user.id, false);
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.ADMIN)
-  @Get('admin/me')
+  @Get('post/admin/me')
   getUserPostsForAdmin(@Query() dto: PostGetPagingAdminDto) {
     return this.postService.getUserPosts(dto, dto.userId, true);
   }
 
   @UseGuards(OptionalJwtAuthGuard)
-  @Get(':id')
-  async getPost(@Param('id', ParseIntPipe) id: number,
+  @Get('post/:postId')
+  async getPost(@Param('postId', ParseIntPipe) postId: number,
                 @CurrentUser() user: UserResponse | null,
                 @Ip() ip: string) {
     const userIdentifier = user ? user.id.toString() : ip;
-    return await this.postService.getPost(id, false, userIdentifier)
+    return await this.postService.getPost(postId, false, userIdentifier)
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.ADMIN)
-  @Get('admin/:id')
-  getPostForAdmin(@Param('id', ParseIntPipe) id: number) {
-    return this.postService.getPost(id, true, '')
+  @Get('post/admin/:postId')
+  getPostForAdmin(@Param('postId', ParseIntPipe) postId: number) {
+    return this.postService.getPost(postId, true, '')
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':id')
-  updatePost(@Param('id', ParseIntPipe) id: number, @Body() body: PostUpdateDto, @CurrentUser() user: UserResponse) {
-    return this.postService.updatePost(id, body, user.id);
+  @Patch('post/:postId')
+  updatePost(@Param('postId', ParseIntPipe) postId: number, @Body() body: PostUpdateDto, @CurrentUser() user: UserResponse) {
+    return this.postService.updatePost(postId, body, user.id);
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.ADMIN)
-  @Patch('status/:id')
-  updatePostStatus(@Param('id', ParseIntPipe) id: number, @Body() body: PostUpdateStatusDto) {
-    return this.postService.updateStatus(id, body.status);
+  @Patch('post/:postId/status')
+  updatePostStatus(@Param('postId', ParseIntPipe) postId: number, @Body() body: PostUpdateStatusDto) {
+    return this.postService.updateStatus(postId, body.status);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  deletePost(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: UserResponse) {
-    return this.postService.deletePost(id, user.id);
+  @Delete('post/:postId')
+  deletePost(@Param('postId', ParseIntPipe) postId: number, @CurrentUser() user: UserResponse) {
+    return this.postService.deletePost(postId, user.id);
   }
 }

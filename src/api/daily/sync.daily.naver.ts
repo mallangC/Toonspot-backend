@@ -60,27 +60,27 @@ async function syncWebtoonData(day: string): Promise<SyncResult> {
     console.log(`\n📅 [${day}] 데이터 수집 시작 - 총 ${titleList.length}개 발견`);
 
     for (const item of titleList) {
-      const toonId = item.titleId;
+      const platformId = item.titleId;
 
       try {
         let info: any = null;
         let totalEpisode: number | null = null;
 
         const isAdult = item.adult;
-        info = await fetchWebtoonDataInfo(toonId);
+        info = await fetchWebtoonDataInfo(platformId);
         if (!isAdult) {
-          totalEpisode = await fetchWebtoonDataTotalCount(toonId);
+          totalEpisode = await fetchWebtoonDataTotalCount(platformId);
         }
 
         const status = item.rest === true ? ToonStatus.PAUSED : item.finish === true ? ToonStatus.FINISHED : ToonStatus.ONGOING;
         const title = item.titleName;
 
-        const findToon = existingToons.find(toon => toon.toonId === toonId);
+        const findToon = existingToons.find(toon => toon.platformId === platformId);
         if (findToon) {
           if (findToon.status !== status || findToon.totalEpisode !== totalEpisode) {
             console.log(`업데이트 : ${title}`);
             const webtoon = {
-              toonId,
+              platformId,
               title,
               status,
               publishDays: status === ToonStatus.FINISHED ? '완결' : info.publishDays,
@@ -94,7 +94,7 @@ async function syncWebtoonData(day: string): Promise<SyncResult> {
         } else {
           console.log(`추가 : ${title}`);
           const webtoon = {
-            toonId,
+            platformId,
             provider: ToonProvider.NAVER,
             title,
             authors: item.author.replaceAll(' / ', ', '),
@@ -103,7 +103,7 @@ async function syncWebtoonData(day: string): Promise<SyncResult> {
             publishDays: info.publishDays,
             rating: Number(item.starScore.toFixed(1)),
             imageUrl: item.thumbnailUrl,
-            pageUrl: `https://comic.naver.com/webtoon/list?titleId=${toonId}`,
+            pageUrl: `https://comic.naver.com/webtoon/list?titleId=${platformId}`,
             summary: info ? info.summary : null,
             genre: info ? info.genre : null,
             totalEpisode,
@@ -113,7 +113,7 @@ async function syncWebtoonData(day: string): Promise<SyncResult> {
           createData.push(webtoon);
         }
       } catch (e) {
-        console.error(`  ❌ [ID: ${toonId}] 상세 정보 수집 실패: ${e.message}`);
+        console.error(`  ❌ [ID: ${platformId}] 상세 정보 수집 실패: ${e.message}`);
         await sleep(500);
       }
     }

@@ -8,7 +8,7 @@ import {Role} from "../../src/type/user.type";
 import {PostCreateDto} from "../../src/post/dto/post.create.dto";
 import request from "supertest";
 import {CommentDto} from "../../src/comment/dto/comment.dto";
-import {UserStatus} from "@prisma/client";
+import {ToonGenre, ToonProvider, ToonStatus, UserStatus} from "@prisma/client";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
 
 describe('LikeController', () => {
@@ -16,6 +16,7 @@ describe('LikeController', () => {
   let prisma: PrismaService;
   let cacheManager: Cache;
   let testUser: any;
+  let baseToon: any;
   let basePost: any;
   let baseComment: any;
 
@@ -45,6 +46,23 @@ describe('LikeController', () => {
       role: Role.USER
     }
 
+    const createToonDto = {
+      id: 1,
+      platformId: 1,
+      provider: ToonProvider.NAVER,
+      title: '테스트 웹툰1',
+      authors: '테스트 저자',
+      summary: '테스트 줄거리',
+      genre: ToonGenre.ACTION,
+      rating: 9.5,
+      status: ToonStatus.ONGOING,
+      isAdult: false,
+      imageUrl: 'https://image.com/image.jpg',
+      pageUrl: 'https://toon.com/12341234',
+      totalEpisode: 20,
+      publishDays: '월',
+    }
+
     const createPostDto = {
       title: '테스트 게시글',
       content: '테스트 게시글 내용',
@@ -55,7 +73,8 @@ describe('LikeController', () => {
     } as CommentDto
 
     testUser = await prisma.user.create({data: {...userData, status: UserStatus.ACTIVE, verificationToken: 'token'}});
-    basePost = await prisma.post.create({data: {...createPostDto, id: 1, userId: testUser.id}});
+    baseToon = await prisma.toon.create({data: createToonDto})
+    basePost = await prisma.post.create({data: {...createPostDto, id: 1, userId: testUser.id, toonId: baseToon.id}});
     baseComment = await prisma.comment.create({data: {...createCommentDto, id: 1, userId: testUser.id, postId: basePost.id}});
     MockAuthGuard.mockUser = {
       id: testUser.id,

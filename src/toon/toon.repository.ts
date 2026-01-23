@@ -25,12 +25,12 @@ export class ToonRepository {
   }
 
   // 조회
-  async existsByToonIdAndProvider(toonId: number, provider: ToonProvider) {
+  async existsByPlatformIdAndProvider(platformId: number, provider: ToonProvider) {
     const exists = await this.prisma.toon.findUnique({
       where: {
-        toonId_provider: {toonId, provider}
+        platformId_provider: {platformId, provider}
       },
-      select: {toonId: true}
+      select: {platformId: true}
     });
     return !!exists;
   }
@@ -40,7 +40,7 @@ export class ToonRepository {
       where: {
         id
       },
-      select: {toonId: true}
+      select: {platformId: true}
     });
     return !!exists;
   }
@@ -98,8 +98,8 @@ export class ToonRepository {
     const updateToons = toons.map((toon) =>
         this.prisma.client.toon.update({
           where: {
-            toonId_provider: {
-              toonId: toon.toonId,
+            platformId_provider: {
+              platformId: toon.platformId,
               provider: toon.provider
             }
           },

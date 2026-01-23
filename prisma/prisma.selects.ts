@@ -17,7 +17,7 @@ export const USER_SAFE_SELECT: UserSelect = {
 
 export const TOON_SELECT: ToonSelect = {
   id: true,
-  toonId: true,
+  platformId: true,
   provider: true,
   title: true,
   authors: true,
@@ -37,6 +37,7 @@ export const TOON_SELECT: ToonSelect = {
 
 export const POST_SELECT: PostSelect = {
   id: true,
+  toonId: true,
   userId: true,
   title: true,
   content: true,

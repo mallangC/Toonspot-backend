@@ -19,7 +19,7 @@ describe('ToonController', () => {
   let cacheManager: Cache;
 
   const createDto = {
-    toonId: 1234,
+    platformId: 1234,
     provider: ToonProvider.NAVER,
     title: '테스트 웹툰',
     authors: '테스트 저자',
@@ -36,7 +36,7 @@ describe('ToonController', () => {
 
   const createDtoList = [
     {
-      toonId: 1,
+      platformId: 1,
       provider: ToonProvider.NAVER,
       title: '테스트 웹툰1',
       authors: '테스트 저자',
@@ -49,9 +49,8 @@ describe('ToonController', () => {
       pageUrl: 'https://toon.com/12341234',
       totalEpisode: 20,
       publishDays: '월',
-      isActive: true
     }, {
-      toonId: 2,
+      platformId: 2,
       provider: ToonProvider.KAKAO_W,
       title: '테스트 웹툰2',
       authors: '테스트 저자',
@@ -64,9 +63,8 @@ describe('ToonController', () => {
       pageUrl: 'https://toon.com/12341234',
       totalEpisode: 20,
       publishDays: '월',
-      isActive: false
     }, {
-      toonId: 3,
+      platformId: 3,
       provider: ToonProvider.KAKAO_P,
       title: '테스트 웹툰3',
       authors: '테스트 저자',
@@ -79,7 +77,7 @@ describe('ToonController', () => {
       pageUrl: 'https://toon.com/12341234',
       totalEpisode: 20,
       publishDays: '월',
-      isActive: true
+      isActive: false,
     },
   ];
 
@@ -130,7 +128,7 @@ describe('ToonController', () => {
         .send(createDto)
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
-          expect(res.body.data.toonId).toEqual(createDto.toonId);
+          expect(res.body.data.platformId).toEqual(createDto.platformId);
           expect(res.body.data.provider).toEqual(createDto.provider);
           expect(res.body.data.title).toEqual(createDto.title);
           expect(res.body.data.authors).toEqual(createDto.authors);
@@ -172,7 +170,7 @@ describe('ToonController', () => {
   it('GET /toon/:id : 툰 단일 조회 성공', async () => {
     const dto = {
       id: 100,
-      toonId: 1234,
+      platformId: 1234,
       provider: ToonProvider.NAVER,
       title: '테스트 웹툰',
       authors: '테스트 저자',
@@ -192,7 +190,7 @@ describe('ToonController', () => {
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
           expect(res.body.data.id).toEqual(dto.id);
-          expect(res.body.data.toonId).toEqual(dto.toonId);
+          expect(res.body.data.platformId).toEqual(dto.platformId);
           expect(res.body.data.provider).toEqual(dto.provider);
           expect(res.body.data.title).toEqual(dto.title);
           expect(res.body.data.authors).toEqual(dto.authors);
@@ -211,7 +209,7 @@ describe('ToonController', () => {
   it('GET /toon/:id : 툰 단일 조회 실패 (isActive=false)', async () => {
     const dto = {
       id: 100,
-      toonId: 1234,
+      platformId: 1234,
       provider: ToonProvider.NAVER,
       title: '테스트 웹툰',
       authors: '테스트 저자',
@@ -237,7 +235,7 @@ describe('ToonController', () => {
   it('GET /toon/admin/:id : 툰 단일 조회 성공 (관리자)', async () => {
     const dto = {
       id: 100,
-      toonId: 1234,
+      platformId: 1234,
       provider: ToonProvider.NAVER,
       title: '테스트 웹툰',
       authors: '테스트 저자',
@@ -257,7 +255,7 @@ describe('ToonController', () => {
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
           expect(res.body.data.id).toEqual(dto.id);
-          expect(res.body.data.toonId).toEqual(dto.toonId);
+          expect(res.body.data.platformId).toEqual(dto.platformId);
           expect(res.body.data.provider).toEqual(dto.provider);
           expect(res.body.data.title).toEqual(dto.title);
           expect(res.body.data.authors).toEqual(dto.authors);
@@ -319,7 +317,7 @@ describe('ToonController', () => {
     await prisma.toon.create({data: {...createDto, id: 100}});
     const dto = {
       id: 100,
-      toonId: 1234,
+      platformId: 1234,
       title: '수정된 웹툰제목',
       authors: '수정된 저자',
       summary: '수정된 줄거리',
@@ -339,7 +337,7 @@ describe('ToonController', () => {
         .send(dto)
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
-          expect(res.body.data.toonId).toEqual(dto.toonId);
+          expect(res.body.data.platformId).toEqual(dto.platformId);
           expect(res.body.data.provider).toEqual(dto.provider);
           expect(res.body.data.title).toEqual(dto.title);
           expect(res.body.data.authors).toEqual(dto.authors);
@@ -355,12 +353,12 @@ describe('ToonController', () => {
         })
   });
 
-  it('PATCH /toon : 툰 수정 실패 (바꾸려는 toonId + provider 조합이 이미 존재함)', async () => {
+  it('PATCH /toon : 툰 수정 실패 (바꾸려는 platformId + provider 조합이 이미 존재함)', async () => {
     await prisma.toon.create({data: {...createDto, id: 100}});
-    await prisma.toon.create({data: {...createDto,toonId: 1212, id: 150}});
+    await prisma.toon.create({data: {...createDto,platformId: 1212, id: 150}});
     const dto = {
       id: 100,
-      toonId: 1212,
+      platformId: 1212,
       title: '수정된 웹툰제목',
       authors: '수정된 저자',
       summary: '수정된 줄거리',

@@ -6,7 +6,7 @@ export function findExistsToons(provider: ToonProvider) {
   return prisma.toon.findMany({
     where: {provider},
     select: {
-      toonId: true,
+      platformId: true,
       title: true,
       status: true,
       totalEpisode: true,

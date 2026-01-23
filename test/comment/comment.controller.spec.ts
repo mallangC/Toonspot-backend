@@ -8,7 +8,7 @@ import {Role} from "../../src/type/user.type";
 import {PostCreateDto} from "../../src/post/dto/post.create.dto";
 import {CommentDto} from "../../src/comment/dto/comment.dto";
 import {CommentUpdateStatusDto} from "../../src/comment/dto/comment.update.status.dto";
-import {CommentStatus, UserStatus} from "@prisma/client";
+import {CommentStatus, ToonGenre, ToonProvider, ToonStatus, UserStatus} from "@prisma/client";
 import request from "supertest";
 import {ExceptionCode} from "../../src/exception/exception.code";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
@@ -19,6 +19,7 @@ describe('CommentController', () => {
   let cacheManager: Cache;
   let testUser: any;
   let adminUser: any;
+  let baseToon: any;
   let basePost: any;
 
   const CreateDto = {
@@ -71,13 +72,31 @@ describe('CommentController', () => {
       role: Role.ADMIN
     }
 
+    const toonData = {
+      id: 1,
+      platformId: 1,
+      provider: ToonProvider.NAVER,
+      title: '테스트 웹툰1',
+      authors: '테스트 저자',
+      summary: '테스트 줄거리',
+      genre: ToonGenre.ACTION,
+      rating: 9.5,
+      status: ToonStatus.ONGOING,
+      isAdult: false,
+      imageUrl: 'https://image.com/image.jpg',
+      pageUrl: 'https://toon.com/12341234',
+      totalEpisode: 20,
+      publishDays: '월',
+    }
+
     const postData = {
       title: '테스트 게시글',
       content: '테스트 게시글 내용',
     } as PostCreateDto
     testUser = await prisma.user.create({data: {...userData, status: UserStatus.ACTIVE, verificationToken: 'token'}});
     adminUser = await prisma.user.create({data: {...adminData, status: UserStatus.ACTIVE, verificationToken: 'token2'}});
-    basePost = await prisma.post.create({data: {...postData, userId: testUser.id, id:1}});
+    baseToon = await prisma.toon.create({data: toonData});
+    basePost = await prisma.post.create({data: {...postData, userId: testUser.id, id:1, toonId: baseToon.id}});
   });
 
   beforeEach(async () => {

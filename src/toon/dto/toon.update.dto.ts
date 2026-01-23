@@ -6,7 +6,7 @@ export class ToonUpdateDto {
   @IsInt({message: 'id는 숫자로 입력해주세요.'})
   id: number;
   @IsNotEmpty({message: 'toonId를 입력해주세요.'})
-  toonId: number;
+  platformId: number;
   @IsNotEmpty({message: '공급자를 입력해주세요.'})
   provider: ToonProvider;
   @IsNotEmpty({message: '제목을 입력해주세요.'})

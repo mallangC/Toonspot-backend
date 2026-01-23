@@ -888,20 +888,20 @@ async function fetchWebtoonData(dayNum: string): Promise<SyncResult> {
       if (!item.eventLog?.eventMeta?.series_id) {
         continue;
       }
-      const toonId = Number(item.eventLog.eventMeta.series_id);
+      const platformId = Number(item.eventLog.eventMeta.series_id);
       const isAdult = item.ageGrade === 'Nineteen';
       const title = item.title;
 
-      const totalEpisode = await fetchWebtoonDataDetail(toonId);
-      const summary = await fetchWebtoonDataSummary(toonId);
-      const findToon = existingToons.find(toon => toon.toonId === toonId);
+      const totalEpisode = await fetchWebtoonDataDetail(platformId);
+      const summary = await fetchWebtoonDataSummary(platformId);
+      const findToon = existingToons.find(toon => toon.platformId === platformId);
 
 
       if (findToon) {
         if (findToon.status !== ToonStatus.FINISHED || findToon.totalEpisode !== totalEpisode) {
           console.log(`업데이트 : ${title}`);
           const webtoon = {
-            toonId,
+            platformId: platformId,
             title,
             status: ToonStatus.FINISHED,
             publishDays: '완결',
@@ -913,7 +913,7 @@ async function fetchWebtoonData(dayNum: string): Promise<SyncResult> {
       } else {
         console.log(`추가 : ${title}`);
         const webtoon = {
-          toonId,
+          platformId,
           provider: ToonProvider.KAKAO_P,
           title,
           authors: summary ? summary.author : null,
@@ -921,7 +921,7 @@ async function fetchWebtoonData(dayNum: string): Promise<SyncResult> {
           isAdult,
           publishDays: dayNum,
           imageUrl: `https:${item.thumbnail}`,
-          pageUrl: `https://page.kakao.com/content/${toonId}`,
+          pageUrl: `https://page.kakao.com/content/${platformId}`,
           summary: summary ? summary.summary : null,
           genre: mapGenreToEnum(item.eventLog.eventMeta.subcategory),
           totalEpisode,

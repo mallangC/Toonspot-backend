@@ -51,7 +51,7 @@ async function fetchWebtoonData(day: string): Promise<ToonDto[]> {
     console.log(`\n📅 [${day}] 데이터 수집 시작 - 총 ${titleList.length}개 발견`);
 
     for (const item of titleList) {
-      const toonId = item.titleId;
+      const platformId = item.titleId;
 
       try {
         let info: any = null;
@@ -59,13 +59,13 @@ async function fetchWebtoonData(day: string): Promise<ToonDto[]> {
 
         console.log(`✅ 수집 중: ${item.titleName}`);
         const isAdult = item.adult;
-        info = await fetchWebtoonDataInfo(toonId);
+        info = await fetchWebtoonDataInfo(platformId);
         if (!isAdult) {
-          totalCount = await fetchWebtoonDataTotalCount(toonId);
+          totalCount = await fetchWebtoonDataTotalCount(platformId);
         }
 
         const webtoon = {
-          toonId,
+          platformId,
           provider: ToonProvider.NAVER,
           title: item.titleName,
           authors: item.author.replaceAll(' / ', ', '),
@@ -74,7 +74,7 @@ async function fetchWebtoonData(day: string): Promise<ToonDto[]> {
           publishDays: info.publishDays,
           rating: Number(item.starScore.toFixed(1)),
           imageUrl: item.thumbnailUrl,
-          pageUrl: `https://comic.naver.com/webtoon/list?titleId=${toonId}`,
+          pageUrl: `https://comic.naver.com/webtoon/list?titleId=${platformId}`,
           summary: info ? info.summary : null,
           genre: info ? info.genre : null,
           totalEpisode: totalCount,
@@ -83,7 +83,7 @@ async function fetchWebtoonData(day: string): Promise<ToonDto[]> {
         collectedData.push(webtoon);
 
       } catch (e) {
-        console.error(`  ❌ [ID: ${toonId}] 상세 정보 수집 실패: ${e.message}`);
+        console.error(`  ❌ [ID: ${platformId}] 상세 정보 수집 실패: ${e.message}`);
       }
     }
 
