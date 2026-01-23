@@ -18,8 +18,8 @@ export class PostService {
               @Inject(CACHE_MANAGER) private cacheManager: Cache) {
   }
 
-  async createPost(dto: PostCreateDto, userId: number): Promise<PostResponse> {
-    return await this.postRepository.save(dto, userId);
+  async createPost(dto: PostCreateDto, userId: number, toonId: number): Promise<PostResponse> {
+    return await this.postRepository.save(dto, userId, toonId);
   }
 
   async getUserPosts(dto: PostGetPagingDto, userId: number, isAdmin: boolean) {
@@ -45,8 +45,8 @@ export class PostService {
     return findPost!;
   }
 
-  getPostsPaged(dto: PostGetPagingDto, isAdmin: boolean) {
-    return this.postRepository.findAll(dto, isAdmin);
+  getPostsPaged(dto: PostGetPagingDto, isAdmin: boolean, toonId: number) {
+    return this.postRepository.findAll(dto, isAdmin, toonId);
   }
 
   async updatePost(id: number, dto: PostUpdateDto, userId: number): Promise<PostResponse> {

@@ -41,6 +41,7 @@ export class PostRepository {
   findAll(dto: PostGetPagingDto, isAdmin: boolean, toonId: number) {
     const {page, keyword} = dto;
     const whereClause = {
+      toonId,
       ...(isAdmin ? {} : {status: PostStatus.PUBLISHED}),
       ...(keyword ? {
         OR: [
