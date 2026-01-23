@@ -1,7 +1,7 @@
 import {ToonGenre, ToonProvider, ToonStatus} from "@prisma/client";
 
 export interface ToonDto {
-  toonId: number,
+  platformId: number,
   title: string,
   isAdult: boolean,
   authors: string,

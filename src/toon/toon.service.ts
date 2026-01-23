@@ -16,7 +16,7 @@ export class ToonService {
 
   // 등록
   async createToon(dto: ToonCreateDto): Promise<ToonResponseDto> {
-    await this.existsToonByToonIdAndProvider(dto.toonId, dto.provider);
+    await this.existsToonByToonIdAndProvider(dto.platformId, dto.provider);
     return this.toonRepository.save(dto);
   }
 
@@ -44,8 +44,8 @@ export class ToonService {
     if (!findToon) {
       throw new CustomException(ExceptionCode.TOON_NOT_FOUND);
     }
-    if (dto.toonId !== findToon.toonId || dto.provider !== findToon.provider) {
-      await this.existsToonByToonIdAndProvider(dto.toonId, dto.provider);
+    if (dto.platformId !== findToon.platformId || dto.provider !== findToon.provider) {
+      await this.existsToonByToonIdAndProvider(dto.platformId, dto.provider);
     }
     return this.toonRepository.update(dto);
   }
@@ -59,7 +59,7 @@ export class ToonService {
   // 삭제
   async deleteToon(id: number) {
     await this.existsToonById(id);
-    this.toonRepository.delete(id);
+    await this.toonRepository.delete(id);
   }
 
   private async existsToonById(id: number) {
@@ -70,7 +70,7 @@ export class ToonService {
   }
 
   private async existsToonByToonIdAndProvider(toonId: number, provider: ToonProvider) {
-    const existsToon = await this.toonRepository.existsByToonIdAndProvider(toonId, provider);
+    const existsToon = await this.toonRepository.existsByPlatformIdAndProvider(toonId, provider);
     if (existsToon) {
       throw new CustomException(ExceptionCode.TOON_ALREADY_EXISTS);
     }

@@ -4,7 +4,7 @@ import {IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Is
 export class ToonCreateDto {
   @IsNotEmpty({message: '웹툰 id를 입력해주세요.'})
   @IsInt({message: '웹툰 id는 숫자로 입력해주세요.'})
-  toonId: number;
+  platformId: number;
   @IsNotEmpty({message: '공급자를 입력해주세요.'})
   @IsEnum(ToonProvider)
   provider: ToonProvider;

@@ -25,13 +25,13 @@ async function fetchWebtoonData(day: string): Promise<ToonDto[]> {
 
     const resultData = response.data.data[0].cardGroups[0].cards;
     for (const item of resultData) {
-      const toonId = item.content.id;
+      const platformId = item.content.id;
       try {
-        const totalEpisode: any = await fetchLatestEpisodeData(toonId);
-        const summary: any = await fetchSummaryData(toonId);
+        const totalEpisode: any = await fetchLatestEpisodeData(platformId);
+        const summary: any = await fetchSummaryData(platformId);
 
         const webtoon = {
-          toonId,
+          platformId,
           provider: ToonProvider.KAKAO_W,
           title: item.content.title,
           authors: item.content.authors.map(author => author.name).join(', '),
@@ -40,7 +40,7 @@ async function fetchWebtoonData(day: string): Promise<ToonDto[]> {
           isAdult: item.content.adult,
           publishDays: day,
           imageUrl: `${item.content.featuredCharacterImageB}.png`,
-          pageUrl: `https://webtoon.kakao.com/content/${item.content.seoId}/${toonId}`,
+          pageUrl: `https://webtoon.kakao.com/content/${item.content.seoId}/${platformId}`,
           summary: summary ? summary.summary : null,
           genre: summary ? summary.genre : null,
           totalEpisode,
@@ -51,7 +51,7 @@ async function fetchWebtoonData(day: string): Promise<ToonDto[]> {
         console.log(`✅ 수집 중: ${item.content.title}`);
 
       } catch (e) {
-        console.error(`❌ [ID: ${toonId}] 상세 정보 수집 실패: ${e.message}`);
+        console.error(`❌ [ID: ${platformId}] 상세 정보 수집 실패: ${e.message}`);
         await sleep(500); // 에러 발생 시 조금 더 길게 휴식
       }
     }
