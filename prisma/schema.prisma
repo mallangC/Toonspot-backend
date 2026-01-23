@@ -40,7 +40,7 @@ enum UserStatus {
 
 model Toon {
   id            Int          @id @default(autoincrement())
-  toonId        Int          @map("toon_id")
+  platformId    Int          @map("platform_id")
   provider      ToonProvider
   title         String
   authors       String
@@ -55,11 +55,12 @@ model Toon {
   totalEpisode  Int?         @map("total_episode")
   publishDays   String       @map("publish_days")
   favoriteCount Int          @default(0) @map("favorite_count")
-  favoritBy     Favorite[]
   createdAt     DateTime     @default(now()) @map("created_at")
   updatedAt     DateTime     @updatedAt @map("updated_at")
+  favoritBy     Favorite[]
+  posts         Post[]
 
-  @@unique([toonId, provider])
+  @@unique([platformId, provider])
   @@map("toon")
 }
 
@@ -104,6 +105,7 @@ model Favorite {
 
 model Post {
   id        Int        @id @default(autoincrement())
+  toonId    Int
   title     String
   content   String     @db.Text
   status    PostStatus @default(PUBLISHED)
@@ -115,6 +117,7 @@ model Post {
   updatedAt DateTime   @updatedAt @map("updated_at")
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  toon     Toon      @relation(fields: [toonId], references: [id], onDelete: Cascade)
   comments Comment[]
 
   @@index([userId])

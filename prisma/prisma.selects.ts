@@ -17,7 +17,7 @@ export const USER_SAFE_SELECT: UserSelect = {
 
 export const TOON_SELECT: ToonSelect = {
   id: true,
-  toonId: true,
+  platformId: true,
   provider: true,
   title: true,
   authors: true,
