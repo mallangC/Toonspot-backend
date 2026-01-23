@@ -37,6 +37,7 @@ export const TOON_SELECT: ToonSelect = {
 
 export const POST_SELECT: PostSelect = {
   id: true,
+  toonId: true,
   userId: true,
   title: true,
   content: true,
