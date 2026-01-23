@@ -4,7 +4,7 @@ import {PostRepository} from "../../src/post/post.repository";
 import {UserRepository} from "../../src/user/user.repository";
 import {PostCreateDto} from "../../src/post/dto/post.create.dto";
 import {PostResponse} from "../../src/post/dto/post.response";
-import {PostStatus} from "@prisma/client";
+import {PostStatus, ToonGenre, ToonProvider, ToonStatus} from "@prisma/client";
 import {ExceptionCode} from "../../src/exception/exception.code";
 import {PostGetPagingDto} from "../../src/post/dto/post.get.paging.dto";
 import {PostPagingResponse} from "../../src/post/dto/post.paging.response";
@@ -57,6 +57,23 @@ describe('PostService', () => {
     userRepository = module.get<UserRepository>(UserRepository);
   });
 
+  const baseToon = {
+    id: 1,
+    platformId: 1,
+    provider: ToonProvider.NAVER,
+    title: '테스트 웹툰',
+    authors: '테스트 저자',
+    summary: '테스트 줄거리',
+    genre: ToonGenre.ACTION,
+    rating: 9.5,
+    status: ToonStatus.ONGOING,
+    isAdult: false,
+    imageUrl: 'https://image.com/image.jpg',
+    pageUrl: 'https://toon.com/12341234',
+    totalEpisode: 20,
+    publishDays: '월',
+  }
+
   const dto = {
     title: '테스트 제목',
     content: '테스트 게시물 내용',
@@ -96,9 +113,9 @@ describe('PostService', () => {
   it('게시물 추가 성공', async () => {
     (postRepository.save as jest.Mock).mockResolvedValue(postResponse);
 
-    const result = await postService.createPost(dto, postResponse.userId);
+    const result = await postService.createPost(dto, postResponse.userId, baseToon.id);
     console.log(JSON.stringify(result, null, 2))
-    expect(postRepository.save).toHaveBeenCalledWith(dto, postResponse.userId);
+    expect(postRepository.save).toHaveBeenCalledWith(dto, postResponse.userId, baseToon.id);
     expect(result?.id).toEqual(postResponse.id);
   });
 
@@ -123,9 +140,9 @@ describe('PostService', () => {
 
     (postRepository.findAll as jest.Mock).mockResolvedValue(pagingResponse);
 
-    const result = await postService.getPostsPaged(pagingDto, true);
+    const result = await postService.getPostsPaged(pagingDto, true, baseToon.id);
     console.log(JSON.stringify(result, null, 2))
-    expect(postRepository.findAll).toHaveBeenCalledWith(pagingDto, true);
+    expect(postRepository.findAll).toHaveBeenCalledWith(pagingDto, true, baseToon.id);
     expect(result?.items[0].id).toEqual(postResponse.id);
   });
 

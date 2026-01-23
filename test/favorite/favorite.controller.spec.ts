@@ -45,7 +45,7 @@ describe('FavoriteController', () => {
 
     const toonDto = {
       id: 1,
-      toonId: 1212,
+      platformId: 1212,
       title: '테스트 웹툰 제목',
       authors: '테스트 저자',
       summary: '테스트 줄거리',

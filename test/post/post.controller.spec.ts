@@ -7,7 +7,7 @@ import {PrismaService} from "../../prisma/prisma.service";
 import {Role} from "../../src/type/user.type";
 import request from "supertest";
 import {PostCreateDto} from "../../src/post/dto/post.create.dto";
-import {PostStatus, UserStatus} from "@prisma/client";
+import {PostStatus, ToonGenre, ToonProvider, ToonStatus, UserStatus} from "@prisma/client";
 import {ExceptionCode} from "../../src/exception/exception.code";
 import {PostUpdateDto} from "../../src/post/dto/post.update.dto";
 import {PostUpdateStatusDto} from "../../src/post/dto/post.update.status.dto";
@@ -19,6 +19,7 @@ describe('PostController', () => {
   let cacheManager: Cache;
   let testUser: any;
   let adminUser: any;
+  let baseToon: any;
 
   const createDto = {
     title: '테스트 게시글',
@@ -74,6 +75,24 @@ describe('PostController', () => {
         verificationToken: 'token2'
       }
     });
+    baseToon = await prisma.toon.create({
+      data: {
+        id: 1,
+        platformId: 1,
+        provider: ToonProvider.NAVER,
+        title: '테스트 웹툰1',
+        authors: '테스트 저자',
+        summary: '테스트 줄거리',
+        genre: ToonGenre.ACTION,
+        rating: 9.5,
+        status: ToonStatus.ONGOING,
+        isAdult: false,
+        imageUrl: 'https://image.com/image.jpg',
+        pageUrl: 'https://toon.com/12341234',
+        totalEpisode: 20,
+        publishDays: '월',
+      }
+    });
   });
 
   beforeEach(async () => {
@@ -99,9 +118,9 @@ describe('PostController', () => {
     await app.close();
   });
 
-  it('POST /post : 게시글 등록 성공', () => {
+  it('POST /toon/1/post : 게시글 등록 성공', () => {
     return request(app.getHttpServer())
-        .post('/post')
+        .post('/toon/1/post')
         .send(createDto)
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
@@ -112,12 +131,19 @@ describe('PostController', () => {
         })
   });
 
-  it('GET /post?page=1 : 게시글 페이징 조회 성공', async () => {
-    await prisma.post.create({data: {...createDto, userId: testUser.id}});
-    await prisma.post.create({data: {...createDto, userId: testUser.id, status: PostStatus.HIDDEN}});
+  it('GET /toon/1/post?page=1 : 게시글 페이징 조회 성공', async () => {
+    await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
+    await prisma.post.create({
+      data: {
+        ...createDto,
+        userId: testUser.id,
+        status: PostStatus.HIDDEN,
+        toonId: baseToon.id
+      }
+    });
 
     return request(app.getHttpServer())
-        .get('/post?page=1')
+        .get('/toon/1/post?page=1')
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
           expect(res.body.data.items.length).toEqual(1);
@@ -128,18 +154,25 @@ describe('PostController', () => {
         })
   });
 
-  it('GET /post/admin?page=1 : (관리자) 게시글 페이징 조회 성공', async () => {
+  it('GET /toon/1/post/admin?page=1 : (관리자) 게시글 페이징 조회 성공', async () => {
     MockAuthGuard.mockUser = {
       id: adminUser.id,
       email: adminUser.email,
       nickname: adminUser.nickname,
       role: Role.ADMIN
     };
-    await prisma.post.create({data: {...createDto, userId: adminUser.id}});
-    await prisma.post.create({data: {...createDto, userId: adminUser.id, status: PostStatus.HIDDEN}});
+    await prisma.post.create({data: {...createDto, userId: adminUser.id, toonId: baseToon.id}});
+    await prisma.post.create({
+      data: {
+        ...createDto,
+        userId: adminUser.id,
+        status: PostStatus.HIDDEN,
+        toonId: baseToon.id
+      }
+    });
 
     return request(app.getHttpServer())
-        .get('/post/admin?page=1')
+        .get('/toon/1/post/admin?page=1')
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
           expect(res.body.data.items.length).toEqual(2);
@@ -150,12 +183,19 @@ describe('PostController', () => {
         })
   });
 
-  it('GET /post/admin?page=1 : (관리자) 게시글 페이징 조회 실패 (관리자가 아님)', async () => {
-    await prisma.post.create({data: {...createDto, userId: adminUser.id}});
-    await prisma.post.create({data: {...createDto, userId: adminUser.id, status: PostStatus.HIDDEN}});
+  it('GET /toon/1/post/admin?page=1 : (관리자) 게시글 페이징 조회 실패 (관리자가 아님)', async () => {
+    await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
+    await prisma.post.create({
+      data: {
+        ...createDto,
+        userId: testUser.id,
+        status: PostStatus.HIDDEN,
+        toonId: baseToon.id
+      }
+    });
 
     return request(app.getHttpServer())
-        .get('/post/admin?page=1')
+        .get('/toon/1/post/admin?page=1')
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
           expect(res.body.message).toEqual(ExceptionCode.UNAUTHORIZED.message);
@@ -163,9 +203,9 @@ describe('PostController', () => {
   });
 
   it('GET /post/me : 내 게시글 조회 성공', async () => {
-    await prisma.post.create({data: {...createDto, userId: testUser.id}});
-    await prisma.post.create({data: {...createDto, userId: testUser.id}});
-    await prisma.post.create({data: {...createDto, userId: adminUser.id}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
+    await prisma.post.create({data: {...createDto, userId: adminUser.id, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
         .get('/post/me?page=1')
@@ -186,9 +226,9 @@ describe('PostController', () => {
       nickname: adminUser.nickname,
       role: Role.ADMIN
     };
-    await prisma.post.create({data: {...createDto, userId: testUser.id}});
-    await prisma.post.create({data: {...createDto, userId: testUser.id}});
-    await prisma.post.create({data: {...createDto, userId: adminUser.id}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
+    await prisma.post.create({data: {...createDto, userId: adminUser.id, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
         .get('/post/admin/me?userId=1&page=1')
@@ -209,9 +249,9 @@ describe('PostController', () => {
       nickname: adminUser.nickname,
       role: Role.ADMIN
     };
-    await prisma.post.create({data: {...createDto, userId: testUser.id}});
-    await prisma.post.create({data: {...createDto, userId: testUser.id}});
-    await prisma.post.create({data: {...createDto, userId: adminUser.id}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
+    await prisma.post.create({data: {...createDto, userId: adminUser.id, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
         .get('/post/admin/me?userId=3&page=1')
@@ -222,7 +262,7 @@ describe('PostController', () => {
   });
 
   it('GET /post/:id : 단일 게시물 조회 성공 (viewCount 1 상승)', async () => {
-    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, toonId: baseToon.id}});
     const result = await request(app.getHttpServer())
         .get('/post/1')
     console.log(JSON.stringify(result.body, null, 2));
@@ -233,7 +273,7 @@ describe('PostController', () => {
   });
 
   it('GET /post/:id : 단일 게시물 조회 실패 (일반 유저 > 상태 HIDDEN, DELETE 조회 불가)', async () => {
-    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, status: PostStatus.HIDDEN}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, status: PostStatus.HIDDEN, toonId: baseToon.id}});
     return request(app.getHttpServer())
         .get('/post/1')
         .expect(res => {
@@ -252,7 +292,6 @@ describe('PostController', () => {
   });
 
 
-
   it('GET /post/admin/:id : (관리자) 단일 게시물 조회 성공 (관리자 > 상태 HIDDEN, DELETE 조회 가능)', async () => {
     MockAuthGuard.mockUser = {
       id: adminUser.id,
@@ -260,7 +299,7 @@ describe('PostController', () => {
       nickname: adminUser.nickname,
       role: Role.ADMIN
     };
-    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, status: PostStatus.HIDDEN}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, status: PostStatus.HIDDEN, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
         .get('/post/admin/1')
@@ -274,7 +313,7 @@ describe('PostController', () => {
   });
 
   it('PATCH /post/:id : 게시물 수정 성공', async () => {
-    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
         .patch('/post/1')
@@ -289,8 +328,8 @@ describe('PostController', () => {
   });
 
   it('PATCH /post/:id : 게시물 수정 실패 (자신의 게시물이 아님)', async () => {
-    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1}});
-    await prisma.post.create({data: {...createDto, userId: adminUser.id, id: 2}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, toonId: baseToon.id}});
+    await prisma.post.create({data: {...createDto, userId: adminUser.id, id: 2, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
         .patch('/post/2')
@@ -301,17 +340,17 @@ describe('PostController', () => {
         })
   });
 
-  it('PATCH /post/status/:id : 게시물 수정 성공', async () => {
+  it('PATCH /post/:id/status : 게시물 수정 성공', async () => {
     MockAuthGuard.mockUser = {
       id: adminUser.id,
       email: adminUser.email,
       nickname: adminUser.nickname,
       role: Role.ADMIN
     };
-    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
-        .patch('/post/status/1')
+        .patch('/post/1/status')
         .send(updateStatusDto)
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
@@ -322,11 +361,11 @@ describe('PostController', () => {
         })
   });
 
-  it('PATCH /post/status/:id : 게시물 수정 실패 (일반 유저 > 접근 불가)', async () => {
-    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1}});
+  it('PATCH /post/:id/status : 게시물 수정 실패 (일반 유저 > 접근 불가)', async () => {
+    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
-        .patch('/post/status/1')
+        .patch('/post/1/status')
         .send(updateStatusDto)
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
@@ -334,17 +373,17 @@ describe('PostController', () => {
         })
   });
 
-  it('PATCH /post/status/:id : 게시물 수정 실패 (게시물을 찾을 수 없음)', async () => {
+  it('PATCH /post/:id/status : 게시물 수정 실패 (게시물을 찾을 수 없음)', async () => {
     MockAuthGuard.mockUser = {
       id: adminUser.id,
       email: adminUser.email,
       nickname: adminUser.nickname,
       role: Role.ADMIN
     };
-    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
-        .patch('/post/status/2')
+        .patch('/post/2/status')
         .send(updateStatusDto)
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
@@ -354,7 +393,7 @@ describe('PostController', () => {
 
 
   it('DELETE /post/:id : 게시물 삭제 처리 성공 (soft delete)', async () => {
-    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, toonId: baseToon.id}});
 
     const result = await request(app.getHttpServer())
         .delete('/post/1')
@@ -366,7 +405,7 @@ describe('PostController', () => {
   });
 
   it('DELETE /post/:id : 게시물 삭제 처리 실패 (게시물을 찾을 수 없음)', async () => {
-    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1}});
+    await prisma.post.create({data: {...createDto, userId: testUser.id, id: 1, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
         .delete('/post/2')
