@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import {Test, TestingModule} from '@nestjs/testing';
 import {AppModule} from "../../src/app.module";
 import {JwtAuthGuard} from "../../src/auth/jwt/jwt.guard";
 import {MockAuthGuard} from "../mocks/mock-auth.guard";
@@ -7,9 +7,9 @@ import {PrismaService} from "../../prisma/prisma.service";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {ToonGenre, ToonProvider, ToonStatus, UserStatus} from "@prisma/client";
 import {Role} from "../../src/type/user.type";
-import {ToonUpdateDto} from "../../src/toon/dto/toon.update.dto";
 import request from "supertest";
 import {ExceptionCode} from "../../src/exception/exception.code";
+import {ToonCreateDto} from "../../src/toon/dto/toon.create.dto";
 
 describe('FavoriteController', () => {
   let app: INestApplication;
@@ -44,7 +44,6 @@ describe('FavoriteController', () => {
     }
 
     const toonDto = {
-      id: 1,
       platformId: 1212,
       title: '테스트 웹툰 제목',
       authors: '테스트 저자',
@@ -58,7 +57,7 @@ describe('FavoriteController', () => {
       totalEpisode: 20,
       publishDays: '테스트 요일',
       provider: ToonProvider.NAVER
-    }as ToonUpdateDto
+    }as ToonCreateDto
     testUser = await prisma.user.create({data: {...userData, status: UserStatus.ACTIVE, verificationToken: 'token'}});
     baseToon = await prisma.toon.create({data: toonDto});
     MockAuthGuard.mockUser = {
