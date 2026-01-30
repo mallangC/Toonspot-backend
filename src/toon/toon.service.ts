@@ -7,7 +7,7 @@ import {ToonGetPagingDto} from "./dto/toon.get.paging.dto";
 import {ToonProvider} from "@prisma/client";
 import {ToonUpdateDto} from "./dto/toon.update.dto";
 import {ToonActiveDto} from "./dto/toon.active.dto";
-import {ToonResponseDto} from "./dto/toon.response";
+import {ToonResponse} from "./dto/toon.response";
 
 @Injectable()
 export class ToonService {
@@ -15,13 +15,13 @@ export class ToonService {
   }
 
   // 등록
-  async createToon(dto: ToonCreateDto): Promise<ToonResponseDto> {
+  async createToon(dto: ToonCreateDto): Promise<ToonResponse> {
     await this.existsToonByToonIdAndProvider(dto.platformId, dto.provider);
     return this.toonRepository.save(dto);
   }
 
   // 단일 조회
-  async getToon(id: number, isAdmin: boolean): Promise<ToonResponseDto> {
+  async getToon(id: number, isAdmin: boolean): Promise<ToonResponse> {
     await this.existsToonById(id);
     const findToon = await this.toonRepository.findByToonIdAndProvider(id, isAdmin)
     if (!findToon) {
@@ -34,26 +34,26 @@ export class ToonService {
   }
 
   // 페이징 조회
-  async getToonsPaged(dto: ToonGetPagingDto, isAdmin: boolean) {
-    return await this.toonRepository.findAllToons(dto, isAdmin);
+  async getToonsPaged(dto: ToonGetPagingDto, isAdmin: boolean, userId: number | null) {
+    return await this.toonRepository.findAllToons(dto, isAdmin, userId);
   }
 
   // 수정
-  async updateToon(dto: ToonUpdateDto): Promise<ToonResponseDto> {
-    const findToon = await this.toonRepository.findById(dto.id);
+  async updateToon(id:number, dto: ToonUpdateDto): Promise<ToonResponse> {
+    const findToon = await this.toonRepository.findById(id);
     if (!findToon) {
       throw new CustomException(ExceptionCode.TOON_NOT_FOUND);
     }
     if (dto.platformId !== findToon.platformId || dto.provider !== findToon.provider) {
       await this.existsToonByToonIdAndProvider(dto.platformId, dto.provider);
     }
-    return this.toonRepository.update(dto);
+    return this.toonRepository.update(id, dto);
   }
 
   // 활성화/비활성화 수정
-  async changeActiveToon(dto: ToonActiveDto): Promise<ToonResponseDto> {
-    await this.existsToonById(dto.id);
-    return await this.toonRepository.updateActiveToon(dto);
+  async changeActiveToon(id: number, dto: ToonActiveDto): Promise<ToonResponse> {
+    await this.existsToonById(id);
+    return await this.toonRepository.updateActiveToon(id, dto.isActive);
   }
 
   // 삭제

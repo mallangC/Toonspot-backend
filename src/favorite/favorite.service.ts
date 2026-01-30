@@ -10,22 +10,22 @@ export class FavoriteService {
               private readonly toonRepository: ToonRepository,) {
   }
 
-  async toggleFavorite(userId: number, toonId: number) {
-    await this.checkToon(toonId);
-    const existsFavorite = await this.favoriteRepository.existsFavorite(userId, toonId);
+  async toggleFavorite(userId: number, id: number) {
+    await this.checkToon(id);
+    const existsFavorite = await this.favoriteRepository.existsFavorite(userId, id);
     if (existsFavorite) {
-      this.favoriteRepository.delete(userId, toonId);
-      this.toonRepository.updateFavoriteCount(toonId, -1);
+      await this.favoriteRepository.delete(userId, id);
+      this.toonRepository.updateFavoriteCount(id, -1);
       return {isFavorite: false}
     } else {
-      this.favoriteRepository.save(userId, toonId);
-      this.toonRepository.updateFavoriteCount(toonId, 1);
+      await this.favoriteRepository.save(userId, id);
+      this.toonRepository.updateFavoriteCount(id, 1);
       return {isFavorite: true}
     }
   }
 
-  private async checkToon(toonId: number) {
-    const existsToon = await this.toonRepository.existsById(toonId);
+  private async checkToon(id: number) {
+    const existsToon = await this.toonRepository.existsById(id);
     if (!existsToon) {
       throw new CustomException(ExceptionCode.TOON_NOT_FOUND);
     }
