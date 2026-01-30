@@ -17,7 +17,7 @@ export class ToonGetPagingDto {
   })
   isAdult?: boolean;
   @IsOptional()
-  sortBy: string = 'title';
+  sortBy: string = 'favoriteCount';
   @IsOptional()
   @IsIn(['asc', 'desc'])
   order: 'asc' | 'desc' = 'asc';
