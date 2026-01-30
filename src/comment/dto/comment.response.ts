@@ -1,6 +1,6 @@
 import {CommentStatus} from "@prisma/client";
 
-export interface CommentResponse {
+export class CommentResponse {
   id: number;
   userId: number;
   postId: number;

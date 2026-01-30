@@ -4,6 +4,7 @@ import {PostRepository} from "../post/post.repository";
 import {CustomException} from "../exception/custom.exception";
 import {ExceptionCode} from "../exception/exception.code";
 import {CommentRepository} from "../comment/comment.repository";
+import {LikeResponse} from "./dto/like.response";
 
 @Injectable()
 export class LikeService {
@@ -12,31 +13,31 @@ export class LikeService {
               private readonly commentRepository: CommentRepository) {
   }
 
-  async togglePostLike(userId: number, postId: number) {
+  async togglePostLike(userId: number, postId: number): Promise<LikeResponse> {
     await this.checkPost(postId);
     const existsPostLike = await this.likeRepository.existsPostLike(userId, postId);
     if (existsPostLike) {
       await this.likeRepository.deletePostLike(userId, postId)
       await this.postRepository.updateLikeCount(postId, -1)
-      return {liked: false}
+      return {isLiked: false}
     } else {
       await this.likeRepository.savePostLike(userId, postId)
       await this.postRepository.updateLikeCount(postId, 1)
-      return {liked: true}
+      return {isLiked: true}
     }
   }
 
-  async toggleCommentLike(userId: number, commentId: number) {
+  async toggleCommentLike(userId: number, commentId: number): Promise<LikeResponse> {
     await this.checkComment(commentId);
     const existsPostLike = await this.likeRepository.existsCommentLike(userId, commentId);
     if (existsPostLike) {
       await this.likeRepository.deleteCommentLike(userId, commentId)
       await this.commentRepository.updateLikeCount(commentId, -1)
-      return {liked: false}
+      return {isLiked: false}
     } else {
       await this.likeRepository.saveCommentLike(userId, commentId)
       await this.commentRepository.updateLikeCount(commentId, 1)
-      return {liked: true}
+      return {isLiked: true}
     }
   }
 

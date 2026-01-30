@@ -3,6 +3,7 @@ import {FavoriteRepository} from "./favorite.repository";
 import {ToonRepository} from "../toon/toon.repository";
 import {CustomException} from "../exception/custom.exception";
 import {ExceptionCode} from "../exception/exception.code";
+import {FavoriteResponse} from "./dto/favorite.response";
 
 @Injectable()
 export class FavoriteService {
@@ -10,7 +11,7 @@ export class FavoriteService {
               private readonly toonRepository: ToonRepository,) {
   }
 
-  async toggleFavorite(userId: number, id: number) {
+  async toggleFavorite(userId: number, id: number): Promise<FavoriteResponse> {
     await this.checkToon(id);
     const existsFavorite = await this.favoriteRepository.existsFavorite(userId, id);
     if (existsFavorite) {
