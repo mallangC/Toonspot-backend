@@ -17,11 +17,11 @@ export class FavoriteRepository {
     return !!existsFavorite;
   }
 
-  save(userId: number, toonId: number) {
-    this.prisma.client.favorite.create({data: {userId, toonId}});
+  async save(userId: number, toonId: number) {
+    await this.prisma.client.favorite.create({data: {userId, toonId}});
   }
 
-  delete(userId: number, toonId: number) {
-    this.prisma.client.favorite.delete({where: {userId_toonId: {userId, toonId}}});
+  async delete(userId: number, toonId: number) {
+    await this.prisma.client.favorite.delete({where: {userId_toonId: {userId, toonId}}});
   }
 }

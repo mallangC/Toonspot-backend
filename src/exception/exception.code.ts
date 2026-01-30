@@ -6,9 +6,9 @@ export const ExceptionCode = {
   CREDENTIALS_INVALID: {message: '아이디나 비밀번호를 확인해주세요.', status: 401},
   TOKEN_INVALID: {message: '유효하지 않은 토큰입니다.', status: 401},
   UNAUTHORIZED: {message: '접근 권한이 없습니다.', status: 403},
-  USER_ACCOUNT_PENDING: {message: '이메일 인증이 필요합니다.', status: 400},
-  USER_ACCOUNT_BLOCKED: {message: '사용자 계정이 차단되었습니다.', status: 400},
-  USER_ACCOUNT_DELETED: {message: '사용자 계정이 탈퇴되었습니다.', status: 400},
+  USER_ACCOUNT_PENDING: {message: '이메일 인증이 필요합니다.', status: 403},
+  USER_ACCOUNT_BLOCKED: {message: '사용자 계정이 차단되었습니다.', status: 403},
+  USER_ACCOUNT_DELETED: {message: '사용자 계정이 탈퇴되었습니다.', status: 403},
 
   // 만화
   TOON_ALREADY_EXISTS: {message: '이미 존재하는 만화입니다.', status: 400},

@@ -11,11 +11,13 @@ import {PostPagingResponse} from "../../src/post/dto/post.paging.response";
 import {PostUpdateDto} from "../../src/post/dto/post.update.dto";
 import {PostUpdateStatusDto} from "../../src/post/dto/post.update.status.dto";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
+import {ToonRepository} from "../../src/toon/toon.repository";
 
 describe('PostService', () => {
   let postService: PostService;
   let postRepository: PostRepository;
   let userRepository: UserRepository;
+  let toonRepository: ToonRepository;
   const mockPostRepository = {
     save: jest.fn(),
     findById: jest.fn(),
@@ -28,6 +30,10 @@ describe('PostService', () => {
   }
 
   const mockUserRepository = {
+    existsById: jest.fn()
+  }
+
+  const mockToonRepository = {
     existsById: jest.fn()
   }
 
@@ -45,16 +51,19 @@ describe('PostService', () => {
       }, {
         provide: UserRepository,
         useValue: mockUserRepository,
-      },
-        {
-          provide: CACHE_MANAGER,
-          useValue: mockCacheManager,
-        }],
+      },{
+        provide: ToonRepository,
+        useValue: mockToonRepository,
+      }, {
+        provide: CACHE_MANAGER,
+        useValue: mockCacheManager,
+      }],
     }).compile();
 
     postService = module.get<PostService>(PostService);
     postRepository = module.get<PostRepository>(PostRepository);
     userRepository = module.get<UserRepository>(UserRepository);
+    toonRepository = module.get<ToonRepository>(ToonRepository);
   });
 
   const baseToon = {
@@ -112,11 +121,20 @@ describe('PostService', () => {
 
   it('게시물 추가 성공', async () => {
     (postRepository.save as jest.Mock).mockResolvedValue(postResponse);
+    (toonRepository.existsById as jest.Mock).mockResolvedValue(true);
 
     const result = await postService.createPost(dto, postResponse.userId, baseToon.id);
     console.log(JSON.stringify(result, null, 2))
     expect(postRepository.save).toHaveBeenCalledWith(dto, postResponse.userId, baseToon.id);
     expect(result?.id).toEqual(postResponse.id);
+  });
+
+  it('게시물 추가 실패 (만화를 찾을 수 없음)', async () => {
+    (postRepository.save as jest.Mock).mockResolvedValue(postResponse);
+    (toonRepository.existsById as jest.Mock).mockResolvedValue(false);
+
+    await expect(postService.createPost(dto, postResponse.userId, baseToon.id)).rejects.toThrow(ExceptionCode.TOON_NOT_FOUND.message);
+    expect(toonRepository.existsById).toHaveBeenCalledWith(baseToon.id);
   });
 
   it('게시물 단일 조회 성공', async () => {
@@ -137,13 +155,21 @@ describe('PostService', () => {
   });
 
   it('게시물 페이징 조회 성공', async () => {
-
     (postRepository.findAll as jest.Mock).mockResolvedValue(pagingResponse);
+    (toonRepository.existsById as jest.Mock).mockResolvedValue(true);
 
     const result = await postService.getPostsPaged(pagingDto, true, baseToon.id);
     console.log(JSON.stringify(result, null, 2))
     expect(postRepository.findAll).toHaveBeenCalledWith(pagingDto, true, baseToon.id);
     expect(result?.items[0].id).toEqual(postResponse.id);
+  });
+
+  it('게시물 페이징 조회 실패 (만화를 찾을 수 없음)', async () => {
+    (postRepository.findAll as jest.Mock).mockResolvedValue(pagingResponse);
+    (toonRepository.existsById as jest.Mock).mockResolvedValue(false);
+
+    await expect(postService.getPostsPaged(pagingDto, true, baseToon.id)).rejects.toThrow(ExceptionCode.TOON_NOT_FOUND.message);
+    expect(toonRepository.existsById).toHaveBeenCalledWith(baseToon.id);
   });
 
   it('내 게시물 페이징 조회 성공', async () => {

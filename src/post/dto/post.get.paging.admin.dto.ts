@@ -3,10 +3,6 @@ import {IsInt, IsNotEmpty, IsOptional, IsString, Min} from "class-validator";
 
 export class PostGetPagingAdminDto {
   @Type(() => Number)
-  @IsNotEmpty({message: 'userId를 입력해주세요.'})
-  @IsInt({message: 'userId는 숫자여야 합니다.'})
-  userId: number;
-  @Type(() => Number)
   @IsNotEmpty({message: '페이지 번호를 입력해주세요.'})
   @IsInt({message: '페이지 번호는 숫자여야 합니다.'})
   @Min(1)

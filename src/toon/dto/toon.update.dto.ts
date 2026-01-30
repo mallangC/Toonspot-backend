@@ -1,11 +1,8 @@
 import {ToonGenre, ToonProvider, ToonStatus} from "@prisma/client";
-import {IsBoolean, IsInt, IsNotEmpty, IsNumber, IsOptional} from "class-validator";
+import {IsBoolean, IsNotEmpty, IsNumber, IsOptional} from "class-validator";
 
 export class ToonUpdateDto {
-  @IsNotEmpty({message: 'id를 입력해주세요.'})
-  @IsInt({message: 'id는 숫자로 입력해주세요.'})
-  id: number;
-  @IsNotEmpty({message: 'toonId를 입력해주세요.'})
+  @IsNotEmpty({message: 'platformId를 입력해주세요.'})
   platformId: number;
   @IsNotEmpty({message: '공급자를 입력해주세요.'})
   provider: ToonProvider;

@@ -7,18 +7,21 @@ import {PostResponse} from "./dto/post.response";
 import {PostUpdateDto} from "./dto/post.update.dto";
 import {PostGetPagingDto} from "./dto/post.get.paging.dto";
 import {PostStatus} from "@prisma/client";
-import {UserRepository} from "../user/user.repository";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import type {Cache} from "cache-manager";
+import {ToonRepository} from "../toon/toon.repository";
+import {UserRepository} from "../user/user.repository";
 
 @Injectable()
 export class PostService {
   constructor(private readonly postRepository: PostRepository,
               private readonly userRepository: UserRepository,
+              private readonly toonRepository: ToonRepository,
               @Inject(CACHE_MANAGER) private cacheManager: Cache) {
   }
 
   async createPost(dto: PostCreateDto, userId: number, toonId: number): Promise<PostResponse> {
+    await this.existsToon(toonId);
     return await this.postRepository.save(dto, userId, toonId);
   }
 
@@ -45,7 +48,8 @@ export class PostService {
     return findPost!;
   }
 
-  getPostsPaged(dto: PostGetPagingDto, isAdmin: boolean, toonId: number) {
+  async getPostsPaged(dto: PostGetPagingDto, isAdmin: boolean, toonId: number) {
+    await this.existsToon(toonId);
     return this.postRepository.findAll(dto, isAdmin, toonId);
   }
 
@@ -66,6 +70,13 @@ export class PostService {
     await this.checkPostOwner(id, userId);
     await this.postRepository.delete(id);
     return `${id}번 게시물이 삭제되었습니다.`;
+  }
+
+  private async existsToon(id: number) {
+    const existsToon = await this.toonRepository.existsById(id);
+    if (!existsToon) {
+      throw new CustomException(ExceptionCode.TOON_NOT_FOUND);
+    }
   }
 
   private async findPostById(id: number, isAdmin: boolean) {

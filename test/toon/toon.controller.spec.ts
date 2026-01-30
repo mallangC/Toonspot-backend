@@ -313,10 +313,9 @@ describe('ToonController', () => {
   });
 
 
-  it('PATCH /toon : 툰 수정 성공', async () => {
+  it('PATCH /toon/:id : 툰 수정 성공', async () => {
     await prisma.toon.create({data: {...createDto, id: 100}});
     const dto = {
-      id: 100,
       platformId: 1234,
       title: '수정된 웹툰제목',
       authors: '수정된 저자',
@@ -333,7 +332,7 @@ describe('ToonController', () => {
     }as ToonUpdateDto
 
     return request(app.getHttpServer())
-        .patch('/toon')
+        .patch('/toon/100')
         .send(dto)
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
@@ -353,7 +352,7 @@ describe('ToonController', () => {
         })
   });
 
-  it('PATCH /toon : 툰 수정 실패 (바꾸려는 platformId + provider 조합이 이미 존재함)', async () => {
+  it('PATCH /toon/:id : 툰 수정 실패 (바꾸려는 platformId + provider 조합이 이미 존재함)', async () => {
     await prisma.toon.create({data: {...createDto, id: 100}});
     await prisma.toon.create({data: {...createDto,platformId: 1212, id: 150}});
     const dto = {
@@ -374,7 +373,7 @@ describe('ToonController', () => {
     }as ToonUpdateDto
 
     return request(app.getHttpServer())
-        .patch('/toon')
+        .patch('/toon/100')
         .send(dto)
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
@@ -385,16 +384,17 @@ describe('ToonController', () => {
   it('PATCH /toon/active : 툰 비활성화 성공', async () => {
     await prisma.toon.create({data: {...createDto, id: 100}});
     const dto = {
-      id: 100,
       isActive: false
     }as ToonActiveDto
 
+    const id = 100;
+
     return request(app.getHttpServer())
-        .patch('/toon/active')
+        .patch(`/toon/${id}/active`)
         .send(dto)
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
-          expect(res.body.data.id).toEqual(dto.id);
+          expect(res.body.data.id).toEqual(id);
           expect(res.body.data.isActive).toEqual(dto.isActive);
         })
   });

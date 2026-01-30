@@ -6,7 +6,7 @@ import {CommentUpdateStatusDto} from "./dto/comment.update.status.dto";
 import {CustomException} from "../exception/custom.exception";
 import {ExceptionCode} from "../exception/exception.code";
 import {CommentResponse} from "./dto/comment.response";
-import {UserResponse} from "../user/dto/userResponse";
+import {UserResponse} from "../user/dto/user.response";
 
 @Injectable()
 export class CommentService {

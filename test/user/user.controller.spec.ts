@@ -137,8 +137,7 @@ describe('UserController', () => {
           console.log(res.body);
           expect(res.body.message).toEqual(ExceptionCode.CREDENTIALS_INVALID.message);
           expect(res.body.statusCode).toEqual(401);
-        })
-        .expect(401);
+        });
   });
 
   it('POST /user/login: 유저 로그인 실패 (이메일 인증 안함)', async () => {
@@ -277,7 +276,7 @@ describe('UserController', () => {
         .send({nickname: '최테스트'})
         .expect(res => {
           console.log(res.body);
-          expect(res.body.data).toEqual(false);
+          expect(res.body.data.isExists).toEqual(false);
         })
         .expect(200);
   });
@@ -295,7 +294,7 @@ describe('UserController', () => {
         .send({nickname: '김테스트'})
         .expect(res => {
           console.log(res.body);
-          expect(res.body.data).toEqual(true);
+          expect(res.body.data.isExists).toEqual(true);
         })
         .expect(200);
   });

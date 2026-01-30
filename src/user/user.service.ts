@@ -81,7 +81,10 @@ export class UserService {
   }
 
   async getNicknameExists(nickname: string) {
-    return this.userRepository.existsByNickname(nickname);
+    const existsNickname = await this.userRepository.existsByNickname(nickname);
+    return {
+      isExists: existsNickname
+    }
   }
 
   async updateNickname(email: string, nickname: string) {
