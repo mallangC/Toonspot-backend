@@ -75,6 +75,8 @@ describe('PostController', () => {
         verificationToken: 'token2'
       }
     });
+    await prisma.post.deleteMany();
+    await prisma.toon.deleteMany();
     baseToon = await prisma.toon.create({
       data: {
         id: 1,

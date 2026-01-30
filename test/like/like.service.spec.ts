@@ -75,7 +75,7 @@ describe('LikeService', () => {
     expect(postRepository.updateLikeCount).toHaveBeenCalledWith(response.postId, 1);
     expect(likeRepository.existsPostLike).toHaveBeenCalledWith(response.userId, response.postId);
     expect(likeRepository.savePostLike).toHaveBeenCalledWith(response.userId, response.postId);
-    expect(result.liked).toEqual(true);
+    expect(result.isLiked).toEqual(true);
   });
 
   it('게시물 좋아요 2번 토글 성공', async () => {
@@ -89,7 +89,7 @@ describe('LikeService', () => {
     expect(postRepository.updateLikeCount).toHaveBeenCalledWith(response.postId, -1);
     expect(likeRepository.existsPostLike).toHaveBeenCalledWith(response.userId, response.postId);
     expect(likeRepository.deletePostLike).toHaveBeenCalledWith(response.userId, response.postId);
-    expect(result.liked).toEqual(false);
+    expect(result.isLiked).toEqual(false);
   });
 
   it('게시물 좋아요 토글 실패 (게시물을 찾을 수 없음)', async () => {
@@ -110,7 +110,7 @@ describe('LikeService', () => {
     expect(commentRepository.updateLikeCount).toHaveBeenCalledWith(response.commentId, 1);
     expect(likeRepository.existsCommentLike).toHaveBeenCalledWith(response.userId, response.commentId);
     expect(likeRepository.saveCommentLike).toHaveBeenCalledWith(response.userId, response.commentId);
-    expect(result.liked).toEqual(true);
+    expect(result.isLiked).toEqual(true);
   });
 
   it('댓글 좋아요 2번 토글 성공', async () => {
@@ -124,7 +124,7 @@ describe('LikeService', () => {
     expect(commentRepository.updateLikeCount).toHaveBeenCalledWith(response.commentId, -1);
     expect(likeRepository.existsCommentLike).toHaveBeenCalledWith(response.userId, response.commentId);
     expect(likeRepository.deleteCommentLike).toHaveBeenCalledWith(response.userId, response.commentId);
-    expect(result.liked).toEqual(false);
+    expect(result.isLiked).toEqual(false);
   });
 
   it('댓글 좋아요 토글 실패 (댓글을 찾을 수 없음)', async () => {

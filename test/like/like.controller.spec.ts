@@ -105,7 +105,7 @@ describe('LikeController', () => {
     const result = await request(app.getHttpServer())
         .post(`/post/${basePost.id}/like`);
     console.log(JSON.stringify(result.body.data, null, 2))
-    expect(result.body.data.liked).toEqual(true);
+    expect(result.body.data.isLiked).toEqual(true);
 
     const findPost = await prisma.post.findUnique({where: {id: basePost.id}});
     console.log(JSON.stringify(findPost, null, 2))
@@ -119,7 +119,7 @@ describe('LikeController', () => {
         .post(`/post/${basePost.id}/like`);
 
     console.log(JSON.stringify(result.body, null, 2));
-    expect(result.body.data.liked).toEqual(false);
+    expect(result.body.data.isLiked).toEqual(false);
 
     const findPost = await prisma.post.findUnique({where: {id: basePost.id}});
     console.log(JSON.stringify(findPost, null, 2))
@@ -140,7 +140,7 @@ describe('LikeController', () => {
     const result = await request(app.getHttpServer())
         .post(`/comment/${baseComment.id}/like`);
     console.log(JSON.stringify(result.body.data, null, 2))
-    expect(result.body.data.liked).toEqual(true);
+    expect(result.body.data.isLiked).toEqual(true);
 
     const findComment = await prisma.comment.findUnique({where: {id: baseComment.id}});
     console.log(JSON.stringify(findComment, null, 2))
