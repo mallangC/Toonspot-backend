@@ -107,6 +107,10 @@ describe('PostController', () => {
     await (cacheManager as any).reset();
   });
 
+  afterEach(async () => {
+    await prisma.post.deleteMany();
+  })
+
   afterAll(async () => {
     await prisma.post.deleteMany();
     await prisma.toon.deleteMany();
@@ -131,7 +135,7 @@ describe('PostController', () => {
         })
   });
 
-  it('GET /toon/1/post?page=1 : 게시글 페이징 조회 성공', async () => {
+  it('GET /toon/1/post : 게시글 페이징 조회 성공', async () => {
     await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
     await prisma.post.create({
       data: {
@@ -154,7 +158,7 @@ describe('PostController', () => {
         })
   });
 
-  it('GET /toon/1/post/admin?page=1 : (관리자) 게시글 페이징 조회 성공', async () => {
+  it('GET /toon/1/post/admin : (관리자) 게시글 페이징 조회 성공', async () => {
     MockAuthGuard.mockUser = {
       id: adminUser.id,
       email: adminUser.email,
@@ -183,7 +187,7 @@ describe('PostController', () => {
         })
   });
 
-  it('GET /toon/1/post/admin?page=1 : (관리자) 게시글 페이징 조회 실패 (관리자가 아님)', async () => {
+  it('GET /toon/1/post/admin : (관리자) 게시글 페이징 조회 실패 (관리자가 아님)', async () => {
     await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
     await prisma.post.create({
       data: {
@@ -202,13 +206,13 @@ describe('PostController', () => {
         })
   });
 
-  it('GET /post/me : 내 게시글 조회 성공', async () => {
+  it('GET /user/post : 내 게시글 조회 성공', async () => {
     await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
     await prisma.post.create({data: {...createDto, userId: testUser.id, toonId: baseToon.id}});
     await prisma.post.create({data: {...createDto, userId: adminUser.id, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
-        .get('/post/me?page=1')
+        .get('/user/post?page=1')
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
           expect(res.body.data.items.length).toEqual(2);
@@ -219,7 +223,7 @@ describe('PostController', () => {
         })
   });
 
-  it('GET /post/me : 해당 유저 게시글 조회 성공 (관리자)', async () => {
+  it('GET /user/1/post/admin : 해당 유저 게시글 조회 성공 (관리자)', async () => {
     MockAuthGuard.mockUser = {
       id: adminUser.id,
       email: adminUser.email,
@@ -231,7 +235,7 @@ describe('PostController', () => {
     await prisma.post.create({data: {...createDto, userId: adminUser.id, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
-        .get('/post/admin/me?userId=1&page=1')
+        .get('/user/1/post/admin?page=1')
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
           expect(res.body.data.items.length).toEqual(2);
@@ -242,7 +246,7 @@ describe('PostController', () => {
         })
   });
 
-  it('GET /post/me : (관리자) 해당 유저 게시글 조회 실패 (해당 유저를 찾을 수 없음)', async () => {
+  it('GET /user/4/post/admin : (관리자) 해당 유저 게시글 조회 실패 (해당 유저를 찾을 수 없음)', async () => {
     MockAuthGuard.mockUser = {
       id: adminUser.id,
       email: adminUser.email,
@@ -254,7 +258,7 @@ describe('PostController', () => {
     await prisma.post.create({data: {...createDto, userId: adminUser.id, toonId: baseToon.id}});
 
     return request(app.getHttpServer())
-        .get('/post/admin/me?userId=3&page=1')
+        .get('/user/4/post/admin?page=1')
         .expect(res => {
           console.log(JSON.stringify(res.body, null, 2));
           expect(res.body.message).toEqual(ExceptionCode.USER_NOT_FOUND.message);

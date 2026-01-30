@@ -3,7 +3,7 @@ import {ToonService} from '../../src/toon/toon.service';
 import {ToonRepository} from "../../src/toon/toon.repository";
 import {ToonGenre, ToonProvider, ToonStatus} from "@prisma/client";
 import {ToonCreateDto} from "../../src/toon/dto/toon.create.dto";
-import {ToonResponseDto} from "../../src/toon/dto/toon.response";
+import {ToonResponse} from "../../src/toon/dto/toon.response";
 import {ExceptionCode} from "../../src/exception/exception.code";
 import {ToonUpdateDto} from "../../src/toon/dto/toon.update.dto";
 import {ToonActiveDto} from "../../src/toon/dto/toon.active.dto";
@@ -71,7 +71,6 @@ describe('ToonService', () => {
   };
 
   const updatedDto = {
-    id: 1,
     platformId: 1234,
     provider: ToonProvider.NAVER,
     title: '업데이트 웹툰',
@@ -97,7 +96,7 @@ describe('ToonService', () => {
     (toonRepository.existsByPlatformIdAndProvider as jest.Mock).mockResolvedValue(false);
     (toonRepository.save as jest.Mock).mockResolvedValue(foundToon);
 
-    const result: ToonResponseDto = await toonService.createToon(dto);
+    const result: ToonResponse = await toonService.createToon(dto);
     expect(toonRepository.existsByPlatformIdAndProvider).toHaveBeenCalledWith(dto.platformId, dto.provider);
     expect(result?.id).toEqual(foundToon.id);
     expect(result?.platformId).toEqual(foundToon.platformId);
@@ -116,7 +115,7 @@ describe('ToonService', () => {
     (toonRepository.existsById as jest.Mock).mockResolvedValue(true);
     (toonRepository.findByToonIdAndProvider as jest.Mock).mockResolvedValue(foundToon);
 
-    const result: ToonResponseDto = await toonService.getToon(id, false);
+    const result: ToonResponse = await toonService.getToon(id, false);
     expect(toonRepository.existsById).toHaveBeenCalledWith(id);
     expect(toonRepository.findByToonIdAndProvider).toHaveBeenCalledWith(id, false);
     expect(result?.id).toEqual(id);
@@ -135,11 +134,12 @@ describe('ToonService', () => {
   it('웹툰 수정 성공', async () => {
     const id = 1;
     (toonRepository.findById as jest.Mock).mockResolvedValue(foundToon);
-    (toonRepository.update as jest.Mock).mockResolvedValue(updatedDto);
+    (toonRepository.update as jest.Mock).mockResolvedValue({...updatedDto, id});
 
-    const result: ToonResponseDto = await toonService.updateToon(updatedDto);
+    const result: ToonResponse = await toonService.updateToon(id, updatedDto);
+    console.log(JSON.stringify(result, null, 2))
     expect(toonRepository.findById).toHaveBeenCalledWith(id);
-    expect(toonRepository.update).toHaveBeenCalledWith(updatedDto);
+    expect(toonRepository.update).toHaveBeenCalledWith(id, updatedDto);
     expect(result?.id).toEqual(id);
     expect(result?.title).toEqual(updatedDto.title);
     expect(result?.authors).toEqual(updatedDto.authors);
@@ -150,7 +150,7 @@ describe('ToonService', () => {
     const id = 1;
     (toonRepository.findById as jest.Mock).mockResolvedValue(null);
 
-    await expect(toonService.updateToon(updatedDto)).rejects.toThrow(ExceptionCode.TOON_NOT_FOUND.message);
+    await expect(toonService.updateToon(id, updatedDto)).rejects.toThrow(ExceptionCode.TOON_NOT_FOUND.message);
     expect(toonRepository.findById).toHaveBeenCalledWith(id);
     expect(toonRepository.update).not.toHaveBeenCalledWith(updatedDto);
   });
@@ -158,7 +158,6 @@ describe('ToonService', () => {
   it('웹툰 수정 실패 (platformId + provider 조합이 이미 존재함)', async () => {
     const id = 1;
     const updateDto = {
-      id: 1,
       platformId: 1010,
       provider: ToonProvider.NAVER,
       title: '테스트 웹툰',
@@ -177,7 +176,7 @@ describe('ToonService', () => {
     (toonRepository.findById as jest.Mock).mockResolvedValue(foundToon);
     (toonRepository.existsByPlatformIdAndProvider as jest.Mock).mockResolvedValue(true);
 
-    await expect(toonService.updateToon(updateDto)).rejects.toThrow(ExceptionCode.TOON_ALREADY_EXISTS.message);
+    await expect(toonService.updateToon(id, updateDto)).rejects.toThrow(ExceptionCode.TOON_ALREADY_EXISTS.message);
     expect(toonRepository.findById).toHaveBeenCalledWith(id);
     expect(toonRepository.existsByPlatformIdAndProvider).toHaveBeenCalledWith(updateDto.platformId, updateDto.provider);
     expect(toonRepository.update).not.toHaveBeenCalledWith(updatedDto);
@@ -185,16 +184,15 @@ describe('ToonService', () => {
 
   it('웹툰 비/활성화 수정 성공', async () => {
     const updateDto = {
-      id: 1,
       isActive: true
     } as ToonActiveDto
     const id = 1;
     (toonRepository.existsById as jest.Mock).mockResolvedValue(true);
-    (toonRepository.updateActiveToon as jest.Mock).mockResolvedValue({...updatedDto, isActive: updateDto.isActive} as ToonResponseDto);
+    (toonRepository.updateActiveToon as jest.Mock).mockResolvedValue({...updatedDto, isActive: updateDto.isActive} as ToonResponse);
 
-    const result: ToonResponseDto = await toonService.changeActiveToon(updateDto);
+    const result: ToonResponse = await toonService.changeActiveToon(id, updateDto);
     expect(toonRepository.existsById).toHaveBeenCalledWith(id);
-    expect(toonRepository.updateActiveToon).toHaveBeenCalledWith(updateDto);
+    expect(toonRepository.updateActiveToon).toHaveBeenCalledWith(id, updateDto.isActive);
     expect(result?.isActive).toEqual(updateDto.isActive);
   });
 
