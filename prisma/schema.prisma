@@ -106,12 +106,12 @@ model Favorite {
 
 model Post {
   id        Int        @id @default(autoincrement())
-  toonId    Int
+  userId    Int        @map("user_id")
+  toonId    Int        @map("toon_id")
   title     String
   content   String     @db.Text
   status    PostStatus @default(PUBLISHED)
   viewCount Int        @default(0) @map("view_count")
-  userId    Int        @map("user_id")
   likeCount Int        @default(0) @map("like_count")
   likes     PostLike[]
   createdAt DateTime   @default(now()) @map("created_at")

@@ -122,3 +122,8 @@ URL: http://localhost:3000/docs
 주요 특징: - @ApiAuthDocs: JWT 인증이 필요한 API에 대한 일괄 보안 적용.
 
 DTO 기반 응답 스키마 정의 및 Enum 타입 자동 문서화.
+
+---
+
+## 📃 ERD
+<img width="918" height="523" alt="Image" src="https://github.com/user-attachments/assets/f2e55b11-026c-4e05-aa03-83366af758cb" />
